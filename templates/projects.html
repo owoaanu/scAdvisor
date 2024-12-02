@@ -1,0 +1,215 @@
+{% extends "base.html" %} {% load static %}
+<div>{% block title %}About - My Site{% endblock %} {% block content %}</div>
+
+<div class="__hero"></div>
+
+<!-- what we offer  -->
+
+<div class="WOF__section container">
+  <div class="WOF">
+    <div class="WOF__image">
+      <img src={% static "images/v1(i).jpg" %} alt="">
+    </div>
+    <div class="WOFt__text">
+      <h2>What we Offer</h2>
+      <div class="">
+        <p class="WOF_text__content">
+          Smart Climate Advisor offers a comprehensive suite of climate
+          prediction services tailored to meet the needs of Tanzanian farmers,
+          who face significant challenges from drought and floods. By providing
+          accurate, real-time weather updates and long-term seasonal climate
+          forecasts, we help farmers plan their activities more effectively,
+          reducing the risks associated with unpredictable weather patterns.
+        </p>
+
+        <p class="WOF_text__content">
+          In addition to weather forecasts, our platform offers expert
+          agricultural advisories, guiding farmers on optimal crop choices,
+          planting schedules, and resource management. One of the core features
+          of our service is the early warning system for extreme weather events,
+          particularly droughts and floods. These alerts enable farmers to take
+          proactive measures to safeguard their crops and livestock, ensuring
+          better resilience against adverse conditions.
+        </p>
+        <p class="WOF_text__content">
+          Through these services, we aim to empower Tanzanian farmers to adapt
+          to the increasing challenges posed by climate change, helping them to
+          maintain and even improve their livelihoods despite environmental
+          uncertainti...
+        </p>
+      </div>
+      <button class="cta-btn">
+        <a href="#" class="">Learn More</a>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sma__video">
+  <video autoplay loop muted plays-inline class="back-video">
+    <source src="{% static 'images/farm.mp4' %}" type="video/mp4" />
+  </video>
+  <h1>
+    Smart Climate <br />
+    Advisors
+  </h1>
+</div>
+
+<div class="numbers">
+  <div>
+    <h1>40k+</h1>
+    <p>Users</p>
+  </div>
+  <div>
+    <h1>200+</h1>
+    <p>
+      Accurate <br />
+      Predictions
+    </p>
+  </div>
+  <div>
+    <h1>112+</h1>
+    <p>
+      Professional <br />
+      team
+    </p>
+  </div>
+  <div>
+    <h1>20</h1>
+    <p>
+      Community <br />
+      Engagement
+    </p>
+  </div>
+</div>
+<!-- why choose us  -->
+
+<div class="WCU__section container">
+  <div class="WCU">
+    <div class="WCU__image">
+      <img src={% static "images/rectangle 31.png" %} alt="">
+    </div>
+    <div class="WCU__text">
+      <h2>Why you Should Choose Our Service</h2>
+      <ul>
+        <li>Localized Experts</li>
+        <li>Accurate and Timely Information</li>
+        <li>Proactive Risk Management</li>
+        <li>Comprehensive Support</li>
+        <li>Proven Success</li>
+        <li>Easy Accessibility</li>
+        <li>Affordable and Flexible Plan</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- testimonies  -->
+<div class="testimonials">
+  <h2>What They Say</h2>
+  <div class="testimonial">
+    <div class="content">
+      <div class="icon">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa-regular fa-star"></i>
+        <p>
+          Smart Climate Advisor has helped us avoid crop losses by providing
+          accurate weather predictions.<span class="remove">
+            It’s like having a guide through Tanzania’s unpredictable climate.
+          </span>
+        </p>
+      </div>
+      <div>
+        <hr class="line" />
+        <div class="profile">
+          <img src="{% static "images/testimonial1.jpg" %}" alt="" />
+          <div>
+            <h3>John M</h3>
+            <p>Maize Farmer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="icon">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <p>
+          "With Smart Climate Advisor, we can confidently plan our farming
+          activities, leading to better yields and a more secure livelihood."
+        </p>
+      </div>
+      <div>
+        <hr class="line" />
+        <div class="profile">
+          <img src="{% static "images/testimonial2.jpg" %}" alt="" />
+          <div>
+            <h3>Amina K</h3>
+            <p>Rice Farmer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="icon">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa-regular fa-star"></i>
+        <p>
+          Smart Climate Advisor has helped us avoid crop losses by providing
+          accurate weather predictions.
+          <span class="remove"
+            >It’s like having a guide through Tanzania’s unpredictable
+            climate.</span
+          >
+        </p>
+      </div>
+      <div>
+        <hr class="line" />
+        <div class="profile">
+          <img src="{% static "images/testimonial3.jpg" %}" alt="" />
+          <div>
+            <h3>Moses N</h3>
+            <p>Coffee Grower</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="icon">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa-regular fa-star"></i>
+        <p>
+          Smart Climate Advisor has helped us avoid crop losses by providing
+          accurate weather predictions.
+          <span class="remove">
+            It’s like having a guide through Tanzania’s unpredictable climate.
+          </span>
+        </p>
+      </div>
+      <div>
+        <hr class="line" />
+        <div class="profile">
+          <img src="{% static "images/testimonial3.jpg" %}" alt="" />
+          <div>
+            <h3>John M</h3>
+            <p>Maize Farmer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

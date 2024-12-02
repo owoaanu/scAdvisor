@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Climate - Sign-up Page</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/fav-icon.png' %}"
+    />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/reusableStyles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsiveness.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body>
+    <div class="container signup-container">
+      <section class="signup">
+        <h1>Welcome Back</h1>
+        <p>
+          Today is a new day. You Shape it.
+          <br class="remove-770" />
+          Sign in to manage the chance of climate disasters.
+        </p>
+        <form action="{% url 'signin' %}" method="post">
+          {% csrf_token %} 
+          {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+          {% endif %}
+       
+           <div>
+            <i class="fa-regular fa-user"></i>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              required
+              id="id_username"
+            />
+          </div>
+        
+          <div>
+            <i class="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              id="id_password"
+            />
+          </div> 
+          {% comment %} {{form.as_p}} {% endcomment %}
+          <input type="submit" value="Continue" class="cta-btn" />
+        </form>
+        <aside class="other-signin">
+          <div>
+            <img
+              src="{% static 'images/DashBoard/google-logo-signup.png' %}"
+              alt=""
+            />
+            <a href="">Sign in with Google</a>
+          </div>
+          <div>
+            <img
+              src="{% static 'images/DashBoard/facebook-png.png' %}"
+              alt=""
+            />
+            <a href="">Sign in with Facebook</a>
+          </div>
+        </aside>
+        <p class="create-acc">
+          Don't have an account?<a href="{% url 'signup' %}" class="green">
+            Sign Up</a
+          >
+        </p>
+      </section>
+      <section class="img-cont">
+        <img src="{% static 'images/DashBoard/login.png' %}" alt="" />
+      </section>
+    </div>
+
+<script>
+  let message = document.querySelector('.messages')
+  if(message) {
+    setTimeout(()=> {
+      message.style.opacity = "0"
+      message.style.transition = "opacity 0.5s ease";
+       setTimeout(() => {
+          message.remove();
+        },500);
+    },5000)
+  }
+</script>
+    <script src="{% static 'js/script.js' %}"></script>
+  </body>
+</html>

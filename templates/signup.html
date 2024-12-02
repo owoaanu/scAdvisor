@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Climate - Sign-up Page</title>
+    <link rel="icon" type="image/png" href="images/fav-icon.png" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/reusableStyles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsiveness.css' %}" />
+        <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/fav-icon.png' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+
+  <body>
+    <div class="container signup-container">
+      <section class="signup">
+        <h1>Sign Up</h1>
+        <p>
+          Welcome 👋 to Smart Climate Advisor <br class="remove-770" />
+          The best cliate advisor in Tazania
+        </p>
+        <form action="" method="post">
+          {% csrf_token%}
+          <div>
+            <i class="fa-regular fa-user"></i>
+            <input
+              type="text"
+              placeholder="Username"
+              name="username"
+              required
+            />
+          </div>
+          {{ form.errors.username}}
+          <div>
+            <i class="fa-regular fa-envelope"></i>
+            <input
+              type="email"
+              name="email"
+              id=""
+              placeholder="Email Address"
+              required
+            />
+          </div>
+          {{ form.errors.email}}
+
+          <div>
+            <i class="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              name="password1"
+              id=""
+              placeholder="Password"
+              required
+            />
+          </div>
+          {{ form.errors.password1}}
+
+          <div>
+            <i class="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              name="password2"
+              id=""
+              placeholder="Confirm Password"
+              required
+            />
+          </div>
+          {{ form.errors.password2}}
+          <input type="submit" value="continue" class="cta-btn" />
+        </form>
+        <p class="create-acc">
+          Have an account?<a href="{% url "signin" %}" class="green"> Sign in</a>
+        </p>
+      </section>
+      <section class="img-cont">
+        <img src="{% static 'images/DashBoard/signup.png' %}" alt="" />
+      </section>
+    </div>
+    <script>
+      const errors = document.querySelectorAll('.errorlist')
+
+      if (errors.length > 0) {
+      errors.forEach((error) => {
+      setTimeout(() => {
+        error.style.transition = "opacity 0.5s ease";
+        error.style.opacity = "0";
+
+      setTimeout(() => {
+        error.remove();
+      }, 500); 
+    }, 5000); 
+  });
+}
+    </script>
+
+    <script src="{% static 'js/script.js' %}"></script>
+  </body>
+</html>

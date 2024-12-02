@@ -1,0 +1,5 @@
+# this is the default site structure adapted into django
+/static/basic_site
+db.sqlite3
+# This is my virtual environment
+/cenv/
