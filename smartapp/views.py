@@ -9,13 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 import json
 
-import folium
-from  folium import plugins
-from branca.element import MacroElement, Template
-import geopandas as gpd
-import pandas as pd
+# import folium
+# from  folium import plugins
+# from branca.element import MacroElement, Template
+# import geopandas as gpd
+# import pandas as pd
 
-from .ipyleafletmap import InteractiveRegionMap
+# from .ipyleafletmap import InteractiveRegionMap
 
 
 
