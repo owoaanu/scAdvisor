@@ -1,0 +1,275 @@
+{% extends "dash-base.html" %}
+{% load static %}
+{% load leaflet_tags %}
+
+{% block extra_css %}
+{% leaflet_css %}
+    <style>
+        .leaflet-container {
+            height: 100vh;
+        }
+        #info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            display: none;
+        }
+        #main { height: 100vh; }
+        #searchBox {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        #detailsPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: none;
+        }
+        .close-button {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+
+{% comment %} <!DOCTYPE html>
+<html> {% endcomment %}
+{% comment %} <head>
+    
+    <style>
+        #map { height: 600px; }
+        #searchBox {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        #detailsPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: none;
+        }
+        .close-button {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head> {% endcomment %}
+{% comment %} <body> {% endcomment %}
+{% block content %}
+{% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" /> {% endcomment %}
+
+
+    {% comment %} <input type="text" id="searchBox" placeholder="Search regions..."> {% endcomment %}
+    <div id="detailsPanel">
+        <span class="close-button">×</span>
+        <div id="detailsContent"></div>
+    </div>
+    {% comment %} <div id="map"></div> {% endcomment %}
+    {% leaflet_map "main" callback="window.map_init_basic" %}
+
+    {% comment %} <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script> {% endcomment %}
+    {% block extra_js %}
+    {% leaflet_js %}
+        <script>
+            window.map_init_basic = function (map, options) {
+                let geoJsonLayer;
+
+                const searchBox = document.getElementById('externalSearchBox');
+                searchBox.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    if (searchTerm && geoJsonLayer) {
+                        geoJsonLayer.eachLayer(function(layer) {
+                            if (layer.feature.properties.ADM2_EN?.toLowerCase().includes(searchTerm)) {
+                                map.fitBounds(layer.getBounds());
+                                layer.fire('click');
+                            }
+                        });
+                    }
+                });
+                // Load your GeoJSON data
+                fetch("{% static 'geojson/tanzaniaBorders.geojson' %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        function onEachFeature(feature, layer) {
+                            layer.on({
+                                mouseover: function (e) {
+                                    layer.setStyle({
+                                        fillOpacity: 0.7
+                                    });
+                                },
+                                mouseout: function (e) {
+                                    layer.setStyle({
+                                        fillOpacity: 0.2
+                                    });
+                                },
+                                click: function (e) {
+                                    const props = feature.properties;
+                                    const infoPanel = document.getElementById('info-panel');
+                                    const regionInfo = document.getElementById('region-info');
+                                    
+                                    let html = '<table>';
+                                    for (const [key, value] of Object.entries(props)) {
+                                        html += `<tr><td><strong>${key}:</strong></td><td>${value}</td></tr>`;
+                                    }
+                                    html += '</table>';
+                                    
+                                    regionInfo.innerHTML = html;
+                                    infoPanel.style.display = 'block';
+                                }
+                            });
+                        }
+
+                        geoJsonLayer = L.geoJSON(data, {
+                            style: function (feature) {
+                                return {
+                                    fillColor: '#3388ff',
+                                    weight: 2,
+                                    opacity: 1,
+                                    color: 'white',
+                                    dashArray: '3',
+                                    fillOpacity: 0.2
+                                };
+                            },
+                            onEachFeature: onEachFeature
+                        }).addTo(map);
+                    });
+            };
+        </script>
+    {% endblock %}
+    {% comment %} <script>
+        // Initialize map
+        const Leaflet = L;
+        
+        const map = Leaflet.map('map').setView([0, 0], 4);
+        Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Add GeoJSON data
+        const geojsonData = {{ geojson_data|safe }};
+        const geojsonLayer = Leaflet.geoJSON(geojsonData, {
+            style: {
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.2
+            },
+            onEachFeature: function(feature, layer) {
+                // Hover effect
+                layer.on({
+                    mouseover: function(e) {
+                        layer.setStyle({
+                            fillOpacity: 0.4,
+                            weight: 3
+                        });
+                    },
+                    mouseout: function(e) {
+                        layer.setStyle({
+                            fillOpacity: 0.2,
+                            weight: 2
+                        });
+                    },
+                    click: function(e) {
+                        updateDetailsPanel(feature.properties);
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Search functionality
+        const searchBox = document.getElementById('externalSearchBox');
+        searchBox.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm) {
+                geojsonData.features.forEach(feature => {
+                    if (feature.properties.ADM2_EN?.toLowerCase().includes(searchTerm)) {
+                        // Calculate bounds
+                        const layer = geojsonLayer.getLayers().find(l => 
+                            l.feature === feature
+                        );
+                        if (layer) {
+                            map.fitBounds(layer.getBounds());
+                            updateDetailsPanel(feature.properties);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Details panel
+        function updateDetailsPanel(properties) {
+            const panel = document.getElementById('detailsPanel');
+            const content = document.getElementById('detailsContent');
+            
+            let html = '<table>';
+            for (const [key, value] of Object.entries(properties)) {
+                html += `<tr><td><strong>${key}:</strong></td><td>${value}</td></tr>`;
+            }
+            html += '</table>';
+            
+            content.innerHTML = html;
+            panel.style.display = 'block';
+        }
+
+        // Close button
+        document.querySelector('.close-button').addEventListener('click', function() {
+            document.getElementById('detailsPanel').style.display = 'none';
+        });
+
+        // Add draw control
+        const drawControl = new Leaflet.Control.Draw({
+            draw: {
+                polygon: true,
+                marker: true,
+                circle: true,
+                rectangle: true,
+                polyline: true
+            }
+        });
+        map.addControl(drawControl);
+
+        // Layer control
+        const baseMaps = {
+            "OpenStreetMap": Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+        const overlayMaps = {
+            "Regions": geojsonLayer
+        };
+        Leaflet.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        // Add full screen control
+        Leaflet.control.fullscreen().addTo(map);
+    </script> {% endcomment %}
+{% endblock %}
+
+    {% comment %} </body>
+</html> {% endcomment %}

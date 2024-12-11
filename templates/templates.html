@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .search-container {
+            width: 300px;
+            position: relative;
+            margin: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .highlight {
+            background-color: #e8f5e9;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search...">
+        <div class="suggestions-list"></div>
+    </div>
+
+    <script>
+        // Sample data - replace with your own data source
+        const data = [
+           'Arusha',	'Arusha Urban',	'Babati',	'Babati Urban',	'Bagamoyo',	'Bahi',	'Bariadi',	'Biharamulo',	'Buhigwe',	'Bukoba',	'Bukoba Urban',	'Bukombe',	'Bunda',	'Busega',	'Butiam',	'Chake Chake',	'Chamwino',	'Chato',	'Chemba',	'Chunya',	'Dodoma Urban',	'Gairo',	'Geita',	'Hai',	'Hanang',	'Handeni',	'Handeni Mji',	'Igunga',	'Ikungi',	'Ilala',	'Ileje',	'Ilemela',	'Iramba',	'Iringa',	'Iringa Urban',	'Itilima',	'Kahama',	'Kahama Township Authority',	'Kakonko',	'Kalambo',	'Kaliua',	'Karagwe',	'Karatu',	'Kaskazini A',	'Kaskazini B',	'Kasulu',	'Kasulu Township Authority',	'Kati',	'Kibaha',	'Kibaha Urban',	'Kibondo',	'Kigoma',	'Kigoma  Urban',	'Kilindi',	'Kilolo',	'Kilombero',	'Kilosa',	'Kilwa',	'Kinondoni',	'Kisarawe',	'Kishapu',	'Kiteto',	'Kondoa',	'Kongwa',	'Korogwe',	'Korogwe Township Authority',	'Kusini',	'Kwimba',	'Kyela',	'Kyerwa',	'Lindi',	'Lindi Urban',	'Liwale',	'Longido',	'Ludewa',	'Lushoto',	'Mafia',	'Mafinga Township Authority',	'Magharibi',	'Magu',	'Makambako Township Authority',	'Makete',	'Manyoni',	'Masasi',	'Masasi  Township Authority',	'Maswa',	'Mbarali',	'Mbeya',	'Mbeya Urban',	'Mbinga',	'Mbogwe',	'Mbozi',	'Mbulu',	'Meatu',	'Meru',	'Micheweni',	'Missenyi',	'Misungwi',	'Mjini',	'Mkalama',	'Mkinga',	'Mkoani',	'Mkuranga',	'Mlele',	'Momba',	'Monduli',	'Morogoro',	'Morogoro Urban',	'Moshi',	'Moshi Urban',	'Mpanda',	'Mpanda Urban',	'Mpwapwa',	'Mtwara',	'Mtwara Urban',	'Mufindi',	'Muheza',	'Muleba',	'Musoma',	'Musoma Urban',	'Mvomero',	'Mwanga',	'Nachingwea',	'Namtumbo',	'Nanyumbu',	'Newala',	'Ngara',	'Ngorongoro',	'Njombe',	'Njombe Urban',	'Nkasi',	'Nyamagana',	"Nyang'hwale",	'Nyasa',	'Nzega',	'Pangani',	'Rombo',	'Rorya',	'Ruangwa',	'Rufiji',	'Rungwe',	'Same',	'Sengerema',	'Serengeti',	'Shinyanga',	'Shinyanga Urban',	'Siha',	'Sikonge',	'Simanjiro',	'Singida',	'Singida Urban',	'Songea',	'Songea Urban',	'Songwe',	'Sumbawanga',	'Sumbawanga Urban',	'Tabora Urban',	'Tandahimba',	'Tanga Urban',	'Tarime',	'Temeke',	'Tunduma',	'Tunduru',	'Ukerewe',	'Ulanga',	'Urambo',	'Uvinza',	'Uyui',	"Wanging'ombe",	'Wete',
+
+        ];
+
+        const searchInput = document.querySelector('.search-input');
+        const suggestionsList = document.querySelector('.suggestions-list');
+
+        // Function to highlight matching text
+        function highlightMatch(text, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Function to display suggestions
+        function showSuggestions(query) {
+            // Clear previous suggestions
+            suggestionsList.innerHTML = '';
+            
+            if (!query) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            // Filter data based on query
+            const filteredData = data.filter(item => 
+                item.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filteredData.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            // Create and append suggestion items
+            filteredData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = highlightMatch(item, query);
+                
+                div.addEventListener('click', () => {
+                    searchInput.value = item;
+                    suggestionsList.style.display = 'none';
+                });
+
+                suggestionsList.appendChild(div);
+            });
+
+            suggestionsList.style.display = 'block';
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', (e) => {
+            showSuggestions(e.target.value);
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                suggestionsList.style.display = 'none';
+            }
+        });
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', (e) => {
+            const items = suggestionsList.querySelectorAll('.suggestion-item');
+            const currentIndex = Array.from(items).findIndex(item => 
+                item === document.activeElement
+            );
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (suggestionsList.style.display === 'block') {
+                        if (currentIndex < 0) {
+                            items[0]?.focus();
+                        } else {
+                            items[currentIndex + 1]?.focus();
+                        }
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        items[currentIndex - 1]?.focus();
+                    }
+                    break;
+                case 'Enter':
+                    if (document.activeElement.classList.contains('suggestion-item')) {
+                        searchInput.value = document.activeElement.textContent;
+                        suggestionsList.style.display = 'none';
+                    }
+                    break;
+                case 'Escape':
+                    suggestionsList.style.display = 'none';
+                    searchInput.focus();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
