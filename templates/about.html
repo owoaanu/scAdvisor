@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load static %}
-<div>{% block title %}About - My Site{% endblock %} {% block content %}</div>
+<div>{% block title %}About{% endblock %} {% block content %}</div>
 
 <div class="__hero"></div>
 
@@ -51,16 +51,17 @@
 </div>
 
 <div class="sma__video">
-  <video autoplay loop muted plays-inline class="back-video">
-    <source src="{% static 'images/farm.mp4' %}" type="video/mp4" />
-  </video>
-  <h1>
+  <h1 style="position: absolute; z-index:2;">
     Smart Climate <br />
     Advisors
   </h1>
+  <div class="hero__overlay"></div>
+  <video autoplay loop muted plays-inline class="back-video">
+    <source src="{% static 'images/grass.mp4' %}" type="video/mp4" />
+  </video>
 </div>
 
-<!-- testimonies  -->
+{% comment %} <!-- testimonies  -->
 <div class="testimonials">
   <h2>What They Say</h2>
   <div class="testimonial">
@@ -166,14 +167,14 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 <!-- what we offer  -->
 
 <div class="WOF__section container">
   <div class="WOF">
     <div class="WOF__image">
-      <img src={% static "images/v1(i).jpg" %} alt="">
+      <img src={% static "images/V1(i).jpg" %} alt="">
     </div>
     <div class="WOFt__text">
       <h2>What we Offer</h2>

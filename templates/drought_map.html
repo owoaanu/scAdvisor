@@ -1,5 +1,6 @@
 <!-- templates/drought_map.html -->
 {% extends "dash-base.html" %}
+{% block title %}Dashboard{% endblock %}
 {% load static %}
 {% load leaflet_tags %}
 
@@ -90,6 +91,7 @@
 </div>
 
 {% block extra_js %}
+        <script src="{% static 'geojson/tanzaniaBorders.js' %}"></script>
         <script>
             // Expert advice object for SPEI ranges
             const expertAdvice = {
@@ -296,104 +298,104 @@
                     //showSuggestions(searchTerm);
                 });
                 // Load your GeoJSON data
-                fetch("{% static 'geojson/tanzaniaBorders.geojson' %}")
-                    .then(response => response.json())
-                    .then(data => {
+                //fetch("{% static 'geojson/tanzaniaBorders.geojson' %}")
+                //    .then(response => response.json())
+                //    .then(data => {
+                //        
+                //        
+                //    });
 
-                        function resetLayerStyle(layer) {
-                            if (layer) {
+                    function resetLayerStyle(layer) {
+                        if (layer) {
+                            layer.setStyle({
+                                fillColor: '#3388ff',
+                                weight: 2,
+                                opacity: 1,
+                                color: 'black',
+                                dashArray: '3',
+                                fillOpacity: 0.2
+                            });
+                            layer.unbindTooltip();  // Remove any existing tooltip
+                        }
+                    }
+        
+                    function highlightLayer(layer) {
+                        // Reset previous selection if any
+                        if (selectedLayer) {
+                            resetLayerStyle(selectedLayer);
+                        }
+        
+                        // Highlight new selection
+                        layer.setStyle({
+                            fillColor: '#ff7800',  // Orange highlight color
+                            weight: 3,
+                            color: '#000',
+                            dashArray: '',
+                            fillOpacity: 0.4
+                        });
+        
+                        // Add label for selected region
+                        if (layer.feature.properties.ADM2_EN) {
+                            layer.bindTooltip(layer.feature.properties.ADM2_EN, {
+                                permanent: true,
+                                direction: 'center',
+                                className: 'region-label'
+                            }).openTooltip();
+                        }
+        
+                        selectedLayer = layer;
+                    }
+
+                    function onEachFeature(feature, layer) {
+                    
+                        layer.on({
+                            mouseover: function (e) {
                                 layer.setStyle({
-                                    fillColor: '#3388ff',
-                                    weight: 2,
-                                    opacity: 1,
-                                    color: 'black',
-                                    dashArray: '3',
+                                    fillOpacity: 0.7
+                                });
+                            },
+                            mouseout: function (e) {
+                                layer.setStyle({
                                     fillOpacity: 0.2
                                 });
-                                layer.unbindTooltip();  // Remove any existing tooltip
-                            }
-                        }
-            
-                        function highlightLayer(layer) {
-                            // Reset previous selection if any
-                            if (selectedLayer) {
-                                resetLayerStyle(selectedLayer);
-                            }
-            
-                            // Highlight new selection
-                            layer.setStyle({
-                                fillColor: '#ff7800',  // Orange highlight color
-                                weight: 3,
-                                color: '#000',
-                                dashArray: '',
-                                fillOpacity: 0.4
-                            });
-            
-                            // Add label for selected region
-                            if (layer.feature.properties.ADM2_EN) {
-                                layer.bindTooltip(layer.feature.properties.ADM2_EN, {
-                                    permanent: true,
-                                    direction: 'center',
-                                    className: 'region-label'
-                                }).openTooltip();
-                            }
-            
-                            selectedLayer = layer;
-                        }
-
-                        function onEachFeature(feature, layer) {
-                        
-                            layer.on({
-                                mouseover: function (e) {
-                                    layer.setStyle({
-                                        fillOpacity: 0.7
-                                    });
-                                },
-                                mouseout: function (e) {
-                                    layer.setStyle({
-                                        fillOpacity: 0.2
-                                    });
-                                },
-                                click: function (e) {
-                                    let regionName = layer.feature.properties.ADM2_EN;
-                                    highlightLayer(layer);
-                                    map.fitBounds(layer.getBounds());
-
-                                    const props = feature.properties;
-                                    const infoPanel = document.getElementById('info-panel');
-                                    const regionInfo = document.getElementById('region-info');
-                                    let sideBarDetails = updateSideBar(regionName, 0);
-                                    updateSideBarImage(0)
-                                    
-                                    let html = `
-
-                                        <p><strong>Region:</strong> ${sideBarDetails.regionName}</p>
-                                        <p></p>
-                                        <p><strong>Advise:</strong> ${sideBarDetails.smartAdvise}</p>
-                                    `;
-                                    
-                                    regionInfo.innerHTML = html;
-                                    infoPanel.style.display = 'block';
-                                }
-                            });
-                        }
-
-                        geoJsonLayer = L.geoJSON(data, {
-                            style: function (feature) {
-                                return {
-                                    fillColor: '#3388ff',
-                                    weight: 2,
-                                    opacity: 1,
-                                    color: 'black',
-                                    dashArray: '3',
-                                    fillOpacity: 0.2
-                                };
                             },
-                            onEachFeature: onEachFeature
-                        }).addTo(map);
+                            click: function (e) {
+                                let regionName = layer.feature.properties.ADM2_EN;
+                                highlightLayer(layer);
+                                map.fitBounds(layer.getBounds());
 
-                        
-                    });
+                                const props = feature.properties;
+                                const infoPanel = document.getElementById('info-panel');
+                                const regionInfo = document.getElementById('region-info');
+                                let sideBarDetails = updateSideBar(regionName, 0);
+                                updateSideBarImage(0)
+                                
+                                let html = `
+
+                                    <p><strong>Region:</strong> ${sideBarDetails.regionName}</p>
+                                    <p></p>
+                                    <p><strong>Advise:</strong> ${sideBarDetails.smartAdvise}</p>
+                                `;
+                                
+                                regionInfo.innerHTML = html;
+                                infoPanel.style.display = 'block';
+                            }
+                        });
+                    }
+
+                    geoJsonLayer = L.geoJSON(tanzaniaBorders, {
+                        style: function (feature) {
+                            return {
+                                fillColor: '#3388ff',
+                                weight: 2,
+                                opacity: 1,
+                                color: 'black',
+                                dashArray: '3',
+                                fillOpacity: 0.2
+                            };
+                        },
+                        onEachFeature: onEachFeature
+                    }).addTo(map);
 
                     L.control.zoom().remove();
                     //L.control.zoom({position:'topright'}).addTo(map);

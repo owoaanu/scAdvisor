@@ -25,7 +25,7 @@
   </head>
   <body>
     <!-- Navbar Section -->
-    <div class="container">
+    <div class="">
       <header class="header">
         <div class="navbar">
           <div class="navbar__logo">
@@ -39,8 +39,7 @@
             <li>
             <a href={% url "about" %}>About</a>
             </li>
-            {% comment %} <li><a href="{% url "services" %}">Service</a></li> {% endcomment %}
-            <li><a href="{% url "projects" %}">Project</a></li>
+            {% comment %} <li><a href="{% url "projects" %}">Project</a></li> {% endcomment %}
             <li><a href="{% url "contact" %}">Contact</a></li>
           </ul>
 
@@ -75,20 +74,22 @@
       <div class="sidebar">
         <div class="sidebar__top">
           <div class="sidebar__header">
-            <img src={% static "images/Transparent-logo.png" %} alt=""
-            class="logo-side">
+            <a href="{% url "index" %}" class="">
+              <img src={% static "images/Transparent-logo.png" %} alt=""
+              class="logo-side">
+            </a>
             <div class="close__icon">
               <i class="fa-regular fa-circle-xmark closeIcon"></i>
             </div>
           </div>
 
           <ul class="sidebar__list">
-            <li><a href="index.html">Home</a></li>
+            <li><a href={% url "index" %}>Home</a></li>
             <li><a href="{% url "about" %}">About</a></li>
             {% comment %} <li><a href="service.html">Services</a></li> {% endcomment %}
-            <li><a href="projects.html">Our Project</a></li>
-            <li><a href="news.html">Latest News</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            {% comment %} <li><a href="projects.html">Project</a></li> {% endcomment %}
+            {% comment %} <li><a href="news.html">Latest News</a></li> {% endcomment %}
+            <li><a href="{% url "contact" %}>Contact</a></li>
           </ul>
         </div>
 
@@ -116,10 +117,9 @@
     <footer>
         <div>
             <img src="{% static "images/fav-icon.png" %}" alt="">
-            <p class="remove-550">There are many variations of <br> passages of lorem ipsum <br> available, but the
-                majority <br> suffered.</p>
+            <p class="remove-550">We believe that by equipping farmers with the right tools and knowledge, we can contribute to food security, economic stability, and sustainable farming practices.</p>
             </p>
-            <div class="socials">
+            {% comment %} <div class="socials">
                 <div>
                     <a href=""><i class="fa-brands fa-twitter"></i></a>
                 </div>
@@ -132,19 +132,22 @@
                 <div>
                     <a href=""><i class="fa-brands fa-instagram"></i></a>
                 </div>
-            </div>
+            </div> {% endcomment %}
         </div>
         <div class="remove-770">
             <h3 id="heading-3">Explore</h3>
             <ul>
-                <li><a href="about.html">About</a></li>
-                <li><a href="service.html">Services</a></li>
-                <li><a href="projects.html">Our Project</a></li>
-                <li><a href="news.html">Latest News</a></li>
-                <li><a href="contact.html">Contact</a></li>
+              <li>
+                <a href={% url "index" %}>Home</a>
+                </li>
+                <li>
+                <a href={% url "about" %}>About</a>
+                </li>
+                {% comment %} <li><a href="{% url "projects" %}">Project</a></li> {% endcomment %}
+                <li><a href="{% url "contact" %}">Contact</a></li>
             </ul>
         </div>
-        <div class="remove">
+        {% comment %} <div class="remove">
             <h3 id="heading-3">News</h3>
             <div class="news">
                 <div class="new">
@@ -164,21 +167,21 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> {% endcomment %}
         <div class="contact-det">
             <h3 id="heading-3">Contact</h3>
             <ul class="contacts">
                 <li>
                     <i class="fa-solid fa-phone"></i>
-                    <p>+(234) 816 938 0417</p>
+                    <p>+(255) 766 969 699</p>
                 </li>
-                <li>
+                {% comment %} <li>
                     <i class="fa-solid fa-envelope"></i>
                     <p>smartclimate@gmail.com</p>
-                </li>
+                </li> {% endcomment %}
                 <li>
                     <i class="fa-solid fa-location-dot"></i>
-                    <p>80 broklyn golden street line New York, USA</p>
+                    <p>Nelson Mandela, Tengeru campus, P.O.BOX 447, Arusha, Tanzania.</p>
                 </li>
             </ul>
         </div>

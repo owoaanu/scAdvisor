@@ -152,12 +152,34 @@ body {
   padding: 2rem 0;
 }
 
+.contact.about {
+  /*display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  margin: 0 8%;*/
+    background: url('/static/images/banner-2.png');
+    background-position: center;
+    background-size: cover;
+    height: 30vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    margin-top: 4rem;
+}
 .about {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(2, 1fr);
   align-items: center;
   margin: 0 8%;
+}
+
+.about h1 {
+  text-align: center;
+  font-size: 4rem;
+  color: white;
 }
 
 .about__image {
@@ -400,7 +422,7 @@ footer {
   padding: 5% 0% 2% 5%;
   color: white;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 5rem;
   justify-content: space-between;
   align-items: center;
@@ -876,4 +898,83 @@ justify-content: space-around;
 }
 /* DASHBOARD END */
 
+/* Contact Page */
+.contact-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 5rem;
+}
 
+.contact-details .mail {
+  height: 60vh;
+  flex-basis: 60%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 3rem;
+}
+
+.container {
+  /* margin: 15px 8em; */
+  padding: 2% 6%;
+}
+
+.contact-details {
+  display: flex;
+  margin-bottom: 3rem;
+}
+.contact-details .map {
+  height: 60vh;
+  flex-basis: 40%;
+  background-color: white;
+}
+
+form div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contact-details input {
+  outline: none;
+  margin-top: 1.3rem;
+  width: 47%;
+  padding: 10px;
+}
+
+.contact-details textarea {
+  width: 100%;
+  outline: none;
+  margin-top: 0.5rem;
+  padding: 20px;
+  font-size: 1rem;
+}
+
+form button {
+  background-color: var(--color-green);
+  border: 0;
+  border-radius: 5px;
+  padding: 10px 10px;
+  color: white;
+  margin-top: 20px;
+}
+
+.contact-info div {
+  flex-basis: 33.33%;
+  height: 230px;
+  background-color: var(--color-yellow);
+  border-radius: 5px;
+  padding: 4rem 8rem 2rem 3rem;
+  color: white;
+}
+
+.contact-info div:nth-child(1) {
+  background-color: #73E46D;
+}
+
+.contact-info div:nth-child(2) {
+  background-color: #C5CE38;
+}

@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load static %}
-<div>{% block title %}Home - My Site{% endblock %} {% block content %}</div>
+<div>{% block title %}Home{% endblock %} {% block content %}</div>
 <div class="hero">
   <video autoplay muted loop id="background-video">
     <source src="{% static 'images/Farm.mp4' %}" type="video/mp4" />
@@ -98,18 +98,19 @@
 </div>
 
 <!-- sma  -->
-<div class="sma__video">
-  <video autoplay loop muted plays-inline class="back-video">
-    <source src="{% static 'images/farm.mp4' %}" type="video/mp4" />
-  </video>
-  <h1>
+<div class="sma__video" style="margin-bottom: 2rem">
+  <h1 style="position: absolute; z-index:2;">
     Smart Climate <br />
     Advisors
   </h1>
+  <div class="hero__overlay"></div>
+  <video autoplay loop muted plays-inline class="back-video">
+    <source src="{% static '/images/grass.mp4' %}" type="video/mp4" />
+  </video>
 </div>
 
 <!-- testimonies  -->
-<div class="testimonials">
+{% comment %} <div class="testimonials">
   <h2>What They Say</h2>
   <div class="testimonial">
     <div class="content">
@@ -214,6 +215,6 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 {% endblock %}

@@ -220,13 +220,16 @@
   </head>
   <body>
     <!-- Navbar Section -->
-    <div class="container">
+    <div class="">
       <header class="header tz-map-dash ">
         <div class="navbar">
           <div class="navbar-group">
             
             <div class="navbar__logo">
-              <img src="{% static 'images/Transparent-logo.png' %}" alt="Logo" />
+              <a href="{% url "index" %}" class="">
+                <img src={% static "images/Transparent-logo.png" %} alt=""
+                class="logo-side">
+              </a>
             </div>
   
             <div class="search-container">
