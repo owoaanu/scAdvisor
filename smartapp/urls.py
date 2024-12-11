@@ -15,4 +15,4 @@ urlpatterns =  [
     # path('map', views.map_view, name='map_view'),
     path('drought', views.leaf_map_view, name='map_view'),
     
-]
+    ]

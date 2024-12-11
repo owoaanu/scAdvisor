@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'smartapp',
-    
+
     'oauth2_provider',
-    
+
     # 'folium',
     # 'ipyleaflet',
     # 'IPython',
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     # 'jupyter_leaflet',
     # 'jupyterlab_widgets',
     'leaflet',
-    
+
 ]
 
 MIDDLEWARE = [
@@ -153,3 +153,4 @@ LEAFLET_CONFIG = {
     'ZOOM_CONTROL': False
     # 'ATTRIBUTION_PREFIX': 'Your data attribution here'
 }
+
