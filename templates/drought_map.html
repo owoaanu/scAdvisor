@@ -1,0 +1,407 @@
+<!-- templates/drought_map.html -->
+{% extends "dash-base.html" %}
+{% load static %}
+{% load leaflet_tags %}
+
+{% block extra_css %}
+{% leaflet_js %}
+{% leaflet_css %}
+    <style>
+        .leaflet-container {
+            height: 100%%;
+        }
+        #info-panel {
+            /*position: absolute;*/
+            /*top: 10px;
+            right: 10px;
+            z-index: 1000;*/
+            /*background: white;*/
+            padding: 2rem;
+            border-radius: 4px;
+            /*box-shadow: 0 0 10px rgba(0,0,0,0.2);*/
+            display: block;
+            flex: 1;
+        }
+        #main { height: 100%%; }
+        #searchBox {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        #detailsPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: none;
+        }
+        .close-button {
+            float: right;
+            cursor: pointer;
+        }
+
+        .leaflet-top{
+            z-index: 900 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="tz-map-dash flex h-screen bg-gray-100" style="height=100vh">
+    <!-- Main content -->
+    <div class="dashboard-grid flex flex-col flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <div class="dashboard-grid-menu flex items-center justify-between h-16 px-4 bg-white shadow">
+            <div id="info-panel">
+                <div id="imageContainer">
+    
+                </div>
+                <div id = "region-info">
+                    <small>Select a region or use the search bar to get further information.</small>
+                </div>
+            </div>
+            <div class="side-footer">
+                <small>
+                    Drought conditions are approximate and are for informational purposes only.
+                </small>
+            </div>
+        </div>
+            
+
+        <!-- Map container -->
+        <div class="dashboard-grid-map  overflow-auto p-4 m-2">
+            
+            {% leaflet_map "main" callback="window.map_init_basic" %}
+
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+        <script>
+            // Expert advice object for SPEI ranges
+            const expertAdvice = {
+                extremelyWet: {
+                    range: "> 2",
+                    advice: "Expect heavy rainfall or prolonged wet conditions. Prepare for potential waterlogging in fields; ensure proper drainage systems are in place. Delay planting crops sensitive to excess moisture. Utilize rainwater harvesting systems to capture and store excess water for future use."
+                },
+                veryWet: {
+                    range: "1.5–2",
+                    advice: "Moderate to heavy rainfall is likely. Monitor fields for signs of waterlogging and diseases caused by high humidity. Consider planting water-tolerant crops if conditions persist. Maintain drainage infrastructure to protect crops."
+                },
+                moderatelyWet: {
+                    range: "1–1.5",
+                    advice: "Slightly above-average rainfall is expected. Optimize irrigation schedules to avoid overwatering. Take advantage of the moisture for planting or improving soil health through mulching or composting."
+                },
+                normal: {
+                    range: "−1 to 1",
+                    advice: "Stable and average rainfall or moisture conditions are anticipated. Continue regular farming practices with appropriate irrigation and soil management. Keep monitoring weather forecasts for sudden changes."
+                },
+                moderatelyDry: {
+                    range: "−1 to −1.5",
+                    advice: "Reduced rainfall and drier-than-average conditions are forecasted. Plan for supplemental irrigation to meet crop water requirements. Mulch fields to retain soil moisture and reduce evaporation. Avoid planting water-intensive crops."
+                },
+                severelyDry: {
+                    range: "−1.5 to −2",
+                    advice: "Significant reduction in rainfall is expected, leading to stress on crops and water resources. Prioritize irrigation for high-value or drought-resistant crops. Limit planting new crops and focus on conserving water resources. Prepare for potential crop yield reductions."
+                },
+                extremelyDry: {
+                    range: "< −2",
+                    advice: "Extreme drought conditions are likely. Minimize water usage and consider switching to drought-resistant crop varieties. Focus on long-term drought mitigation strategies, such as soil conservation and water harvesting. Engage with local agricultural extension services for advice on managing severe drought impacts."
+                }
+            };
+
+            // Sidebar data object
+            let sideBarData = {
+                regionName: '',
+                droughtIndex: null,
+                smartAdvise: ''
+            };
+
+            // Function to get advice based on drought index
+            function getAdviceForIndex(droughtIndex) {
+                if (droughtIndex > 2) return expertAdvice.extremelyWet;
+                if (droughtIndex > 1.5) return expertAdvice.veryWet;
+                if (droughtIndex > 1) return expertAdvice.moderatelyWet;
+                if (droughtIndex >= -1) return expertAdvice.normal;
+                if (droughtIndex >= -1.5) return expertAdvice.moderatelyDry;
+                if (droughtIndex >= -2) return expertAdvice.severelyDry;
+                return expertAdvice.extremelyDry;
+            }
+
+            // Example usage
+            function updateSideBar(regionName, droughtIndex) {
+                const advice = getAdviceForIndex(droughtIndex);
+                sideBarData.regionName = regionName;
+                sideBarData.droughtIndex = droughtIndex;
+                sideBarData.smartAdvise = advice.advice;
+
+                console.log(sideBarData);
+                return sideBarData;
+            }
+
+            const updateSideBarImage = droughIndex => {
+
+                // Store the SVGs as strings for simplicity.
+                // In a production environment, you might fetch these from separate SVG files.
+                const images = {
+                  extremelyWet: "<img class='feathered-image' src={% static 'images/DashBoard/extreme-wet.svg' %} alt='extremelyWet'/>", 
+                  veryWet: "<img class='feathered-image' src={% static 'images/DashBoard/very-wet.svg' %} alt=''/>",
+                  moderatelyWet: "<img class='feathered-image' src={% static 'images/DashBoard/moderately-wet.svg' %} alt=''/>",
+                  normal: "<img class='feathered-image' src={% static 'images/DashBoard/normal.svg' %} alt=''/>",
+                  moderatelyDry: "<img class='feathered-image' src={% static 'images/DashBoard/moderately-dry.svg' %} alt=''/>",
+                  severelyDry: "<img class='feathered-image' src={% static 'images/DashBoard/very-dry.svg' %} alt=''/>",
+                  extremelyDry: "<img class='feathered-image' src={% static 'images/DashBoard/extreme-dry.svg' %} alt=''/>",
+                  nodata: "<img class='feathered-image' src={% static 'images/DashBoard/nodata.svg' %} alt=''/>"
+                };
+                
+                // Example: Suppose we have the SPEI value from some data source.
+                // This could come from an API, user input, or a dataset.
+                let speiIndex = droughIndex; // For demonstration purposes
+                
+                // Display the SPEI value
+                //document.getElementById('speiValue').textContent = speiIndex;
+                
+                // Determine the category based on the SPEI index
+                let catergory = 'nodata';
+                if (speiIndex == null) {
+                    category = 'nodata';
+                  }else if (speiIndex >= 2) {
+                  category = 'extremelyWet';
+                } else if (speiIndex >= 1.5 && speiIndex < 2) {
+                  category = 'veryWet';
+                } else if (speiIndex >= 1 && speiIndex < 1.5) {
+                  category = 'moderatelyWet';
+                } else if (speiIndex > -1 && speiIndex < 1) {
+                  category = 'normal';
+                } else if (speiIndex <= -1 && speiIndex > -1.5) {
+                  category = 'moderatelyDry';
+                } else if (speiIndex <= -1.5 && speiIndex > -2) {
+                  category = 'severelyDry';
+                } else if (speiIndex <= -2) {
+                  category = 'extremelyDry';
+                }else{
+                    catergory = 'nodata'
+                }
+                
+                // Insert the appropriate SVG into the container
+                document.getElementById('imageContainer').innerHTML = images[category];
+            }
+        </script>
+        <script>
+            updateSideBarImage(null)
+            const mapOptions = {
+                center: [40.7128, -74.0060], // New York City coordinates
+                zoom: 12,
+                someCustomOption: "Custom behavior enabled"
+            };
+            const regionData = [
+                'Arusha',	'Arusha Urban',	'Babati',	'Babati Urban',	'Bagamoyo',	'Bahi',	'Bariadi',	'Biharamulo',	'Buhigwe',	'Bukoba',	'Bukoba Urban',	'Bukombe',	'Bunda',	'Busega',	'Butiam',	'Chake Chake',	'Chamwino',	'Chato',	'Chemba',	'Chunya',	'Dodoma Urban',	'Gairo',	'Geita',	'Hai',	'Hanang',	'Handeni',	'Handeni Mji',	'Igunga',	'Ikungi',	'Ilala',	'Ileje',	'Ilemela',	'Iramba',	'Iringa',	'Iringa Urban',	'Itilima',	'Kahama',	'Kahama Township Authority',	'Kakonko',	'Kalambo',	'Kaliua',	'Karagwe',	'Karatu',	'Kaskazini A',	'Kaskazini B',	'Kasulu',	'Kasulu Township Authority',	'Kati',	'Kibaha',	'Kibaha Urban',	'Kibondo',	'Kigoma',	'Kigoma  Urban',	'Kilindi',	'Kilolo',	'Kilombero',	'Kilosa',	'Kilwa',	'Kinondoni',	'Kisarawe',	'Kishapu',	'Kiteto',	'Kondoa',	'Kongwa',	'Korogwe',	'Korogwe Township Authority',	'Kusini',	'Kwimba',	'Kyela',	'Kyerwa',	'Lindi',	'Lindi Urban',	'Liwale',	'Longido',	'Ludewa',	'Lushoto',	'Mafia',	'Mafinga Township Authority',	'Magharibi',	'Magu',	'Makambako Township Authority',	'Makete',	'Manyoni',	'Masasi',	'Masasi  Township Authority',	'Maswa',	'Mbarali',	'Mbeya',	'Mbeya Urban',	'Mbinga',	'Mbogwe',	'Mbozi',	'Mbulu',	'Meatu',	'Meru',	'Micheweni',	'Missenyi',	'Misungwi',	'Mjini',	'Mkalama',	'Mkinga',	'Mkoani',	'Mkuranga',	'Mlele',	'Momba',	'Monduli',	'Morogoro',	'Morogoro Urban',	'Moshi',	'Moshi Urban',	'Mpanda',	'Mpanda Urban',	'Mpwapwa',	'Mtwara',	'Mtwara Urban',	'Mufindi',	'Muheza',	'Muleba',	'Musoma',	'Musoma Urban',	'Mvomero',	'Mwanga',	'Nachingwea',	'Namtumbo',	'Nanyumbu',	'Newala',	'Ngara',	'Ngorongoro',	'Njombe',	'Njombe Urban',	'Nkasi',	'Nyamagana',	"Nyang'hwale",	'Nyasa',	'Nzega',	'Pangani',	'Rombo',	'Rorya',	'Ruangwa',	'Rufiji',	'Rungwe',	'Same',	'Sengerema',	'Serengeti',	'Shinyanga',	'Shinyanga Urban',	'Siha',	'Sikonge',	'Simanjiro',	'Singida',	'Singida Urban',	'Songea',	'Songea Urban',	'Songwe',	'Sumbawanga',	'Sumbawanga Urban',	'Tabora Urban',	'Tandahimba',	'Tanga Urban',	'Tarime',	'Temeke',	'Tunduma',	'Tunduru',	'Ukerewe',	'Ulanga',	'Urambo',	'Uvinza',	'Uyui',	"Wanging'ombe",	'Wete',
+
+            ];
+                const searchBox = document.getElementById('externalSearchBox');
+                const searchBtn = document.getElementById('searchBtn');
+                searchBtn.style.display = 'none';
+                const suggestionsList = document.querySelector('.suggestions-list');
+
+            // Function to highlight matching text
+            function highlightMatch(text, query) {
+                const regex = new RegExp(`(${query})`, 'gi');
+                return text.replace(regex, '<span class="highlight">$1</span>');
+            }
+
+            // Function to display suggestions
+            function showSuggestions(query) {
+                // Clear previous suggestions
+                suggestionsList.innerHTML = '';
+                
+                if (!query) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+
+                // Filter data based on query
+                const filteredData = regionData.filter(item => 
+                    item.toLowerCase().includes(query.toLowerCase())
+                );
+
+                if (filteredData.length === 0) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+
+                // Create and append suggestion items
+                filteredData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerHTML = highlightMatch(item, query);
+                    
+                    div.addEventListener('click', () => {
+                        searchBox.value = item;
+                        suggestionsList.style.display = 'none';
+                        searchBtn.click();
+                        //return true;
+                    });
+
+                    suggestionsList.appendChild(div);
+                });
+
+                suggestionsList.style.display = 'block';
+            }
+
+
+            // Close suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchBox.contains(e.target) && !suggestionsList.contains(e.target)) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+            
+            window.map_init_basic = function (map, options) {
+                options.zoomControl = false;
+
+                let selectedLayer = null;
+                let geoJsonLayer;
+
+                searchBox.addEventListener('input', function(e) {
+                    var searchTerm = e.target.value.toLowerCase();
+                    console.log("search term: "+searchTerm)
+                    if (searchTerm && geoJsonLayer) {
+                        showSuggestions(searchTerm);
+                        searchBtn.addEventListener('click', function(e){
+                            searchTerm = searchBox.value.toLowerCase();
+                            geoJsonLayer.eachLayer(function(layer) {
+                                if (layer.feature.properties.ADM2_EN?.toLowerCase() == searchTerm) {
+                                    //console.log("search term: "+searchTerm, "feature name: "+layer.feature.properties.ADM2_EN?.toLowerCase())
+                                    map.fitBounds(layer.getBounds());
+                                    layer.fire('click');
+                                    return;
+                                }
+                            });
+                        });
+                    
+                    }
+                    //showSuggestions(searchTerm);
+                });
+                // Load your GeoJSON data
+                fetch("{% static 'geojson/tanzaniaBorders.geojson' %}")
+                    .then(response => response.json())
+                    .then(data => {
+
+                        function resetLayerStyle(layer) {
+                            if (layer) {
+                                layer.setStyle({
+                                    fillColor: '#3388ff',
+                                    weight: 2,
+                                    opacity: 1,
+                                    color: 'black',
+                                    dashArray: '3',
+                                    fillOpacity: 0.2
+                                });
+                                layer.unbindTooltip();  // Remove any existing tooltip
+                            }
+                        }
+            
+                        function highlightLayer(layer) {
+                            // Reset previous selection if any
+                            if (selectedLayer) {
+                                resetLayerStyle(selectedLayer);
+                            }
+            
+                            // Highlight new selection
+                            layer.setStyle({
+                                fillColor: '#ff7800',  // Orange highlight color
+                                weight: 3,
+                                color: '#000',
+                                dashArray: '',
+                                fillOpacity: 0.4
+                            });
+            
+                            // Add label for selected region
+                            if (layer.feature.properties.ADM2_EN) {
+                                layer.bindTooltip(layer.feature.properties.ADM2_EN, {
+                                    permanent: true,
+                                    direction: 'center',
+                                    className: 'region-label'
+                                }).openTooltip();
+                            }
+            
+                            selectedLayer = layer;
+                        }
+
+                        function onEachFeature(feature, layer) {
+                        
+                            layer.on({
+                                mouseover: function (e) {
+                                    layer.setStyle({
+                                        fillOpacity: 0.7
+                                    });
+                                },
+                                mouseout: function (e) {
+                                    layer.setStyle({
+                                        fillOpacity: 0.2
+                                    });
+                                },
+                                click: function (e) {
+                                    let regionName = layer.feature.properties.ADM2_EN;
+                                    highlightLayer(layer);
+                                    map.fitBounds(layer.getBounds());
+
+                                    const props = feature.properties;
+                                    const infoPanel = document.getElementById('info-panel');
+                                    const regionInfo = document.getElementById('region-info');
+                                    let sideBarDetails = updateSideBar(regionName, 0);
+                                    updateSideBarImage(0)
+                                    
+                                    let html = `
+
+                                        <p><strong>Region:</strong> ${sideBarDetails.regionName}</p>
+                                        <p></p>
+                                        <p><strong>Advise:</strong> ${sideBarDetails.smartAdvise}</p>
+                                    `;
+                                    
+                                    regionInfo.innerHTML = html;
+                                    infoPanel.style.display = 'block';
+                                }
+                            });
+                        }
+
+                        geoJsonLayer = L.geoJSON(data, {
+                            style: function (feature) {
+                                return {
+                                    fillColor: '#3388ff',
+                                    weight: 2,
+                                    opacity: 1,
+                                    color: 'black',
+                                    dashArray: '3',
+                                    fillOpacity: 0.2
+                                };
+                            },
+                            onEachFeature: onEachFeature
+                        }).addTo(map);
+
+                        
+                    });
+
+                    L.control.zoom().remove();
+                    //L.control.zoom({position:'topright'}).addTo(map);
+            };
+        </script>
+
+        <script>
+            
+        </script>
+    {% endblock %}
+{% endblock %}

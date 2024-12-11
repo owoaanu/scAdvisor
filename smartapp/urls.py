@@ -11,5 +11,8 @@ urlpatterns =  [
     path('signup', views.signup, name='signup'),
     path('signin', views.signin, name='signin'),
     path('signout', views.signout, name='signout'),
+    # path('drought', views.drought_map_view, name='drought_map_view'),
+    # path('map', views.map_view, name='map_view'),
+    path('drought', views.leaf_map_view, name='map_view'),
     
 ]

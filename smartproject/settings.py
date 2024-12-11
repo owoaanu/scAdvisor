@@ -39,7 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'smartapp',
+    
     'oauth2_provider',
+    
+    # 'folium',
+    # 'ipyleaflet',
+    # 'IPython',
+    # 'ipywidgets',
+    # 'jupyter_leaflet',
+    # 'jupyterlab_widgets',
+    'leaflet',
+    
 ]
 
 MIDDLEWARE = [
@@ -132,3 +142,14 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = 'signin'
+
+# LEAFLET Setting
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (-6.3690, 34.8888),  # Tanzania's approximate center
+    'DEFAULT_ZOOM': 6,
+    'MAX_ZOOM': 20,
+    'MIN_ZOOM': 3,
+    'SCALE': 'both',
+    'ZOOM_CONTROL': False
+    # 'ATTRIBUTION_PREFIX': 'Your data attribution here'
+}

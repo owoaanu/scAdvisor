@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/image-feather-edges.css' %}" />
+    {% comment %} <link rel="stylesheet" href="{% static 'css/old_style.css' %}" /> {% endcomment %}
+    <link rel="stylesheet" href="{% static 'css/reusableStyles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/responsiveness.css' %}" />
+    
+
+    <script
+      src="https://kit.fontawesome.com/14bfa6f5f3.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+        <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/fav-icon.png' %}"
+    />
+    <title>{% block title %}{% endblock %} - Smart Climate Advisor</title>
+
+    {% block extra_css %}{% endblock %}
+    <style>
+      .tz-map-dash {
+          
+      }
+
+      .tz-map-dash .navbar {
+        background-color: #f9f9f9;
+        height: 4em;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+    }
+
+      .tz-map-dash .navbar-group{
+          /*width: 2em !important;*/
+          display: flex;
+          align-items: center;
+          justify-items: center;
+      }
+      .tz-map-dash .navbar__logo img {
+        width: 12rem;
+        margin-right: 2rem;
+      }
+
+      .leaflet-container {
+          height: 100%;
+          width: 100%;
+          border-radius: 0.5rem;
+      }
+      
+      .legend i {
+          width: 18px;
+          height: 18px;
+          float: left;
+          margin-right: 8px;
+          opacity: 0.7;
+          z-index: 1000
+      }
+
+      .search-container {
+          position: relative;
+          width: 20rem;
+      }
+      
+      .search-input {
+          width: 100%;
+          padding: 12px 40px 12px 40px;
+          border: none;
+          border-radius: 5px;
+          background-color: #f1f1f1;
+          font-size: 16px;
+          transition: background-color 0.3s, box-shadow 0.3s;
+      }
+      
+      .search-input:focus {
+          outline: none;
+          background-color: #ffffff;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .search-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 20px;
+          pointer-events: none;
+      }
+      
+      .search-icon svg {
+          width: 100%;
+          height: 100%;
+          fill: #666;
+      }
+      
+      ::placeholder {
+          color: #666;
+          opacity: 1;
+      }
+
+      .dashboard-grid {
+        padding-top: 4em;
+        display: grid;
+        grid-template-columns: 20% 1fr;
+        grid-template-rows: 1fr;
+        grid-column-gap: px;
+        grid-row-gap: 0px;
+        height: 100vh
+        }
+        
+      .dashboard-grid-menu {
+          background-color: #f9f9f9;
+          grid-area: 1 / 1 / 6 / 2;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+          z-index: 900;
+          display: flex;
+          flex-direction: column;
+      }
+      .dashboard-grid-menu .side-footer{
+        
+      }
+      .dashboard-grid-menu {
+        background-color: #f9f9f9;
+      }
+      .dashboard-grid-map { grid-area: 1 / 2 / 2 / 3; }
+      /*.dashboard-grid-map  div, .dashboard-grid-map  div  div {
+        height: 100% !important;
+      }*/
+      
+      .search-input:focus {
+          border-color: #4CAF50;
+      }
+
+      .suggestions-list {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background-color: white;
+          border: 1px solid #ddd;
+          border-radius: 0 0 4px 4px;
+          max-height: 200px;
+          overflow-y: auto;
+          display: none;
+          z-index: 2000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .suggestion-item {
+          padding: 10px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+      }
+
+      .suggestion-item:hover {
+          background-color: #f5f5f5;
+      }
+
+      .highlight {
+          background-color: #e8f5e9;
+          font-weight: bold;
+      }
+
+      .region-label {
+        background: #fff;
+        border: none;
+        box-shadow: none;
+        font-weight: bold;
+        font-size: 12px;
+        color: #333;
+        padding: 0.1rem 0.3rem
+        text-shadow: 
+            -1px -1px 0 white,
+            1px -1px 0 white,
+            -1px 1px 0 white,
+            1px 1px 0 white;
+    }
+    #imageContainer{
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #imageContainer img {
+      width: 80%;
+      
+    }
+    .feathered-image {
+        height: auto;
+        -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0) 100%);
+        mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 55%);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: cover;
+        mask-size: cover;
+    }
+    .side-footer{
+      margin-top: auto;
+      padding: 2rem;
+    }
+    #region-info{
+      padding-top:2rem
+    }
+
+    </style>
+  </head>
+  <body>
+    <!-- Navbar Section -->
+    <div class="container">
+      <header class="header tz-map-dash ">
+        <div class="navbar">
+          <div class="navbar-group">
+            
+            <div class="navbar__logo">
+              <img src="{% static 'images/Transparent-logo.png' %}" alt="Logo" />
+            </div>
+  
+            <div class="search-container">
+              <div class="search-icon">
+                  <svg viewBox="0 0 24 24">
+                      <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                  </svg>
+              </div>
+              <input type="text" class="search-input" placeholder="Search for a location" id="externalSearchBox">
+              <button id="searchBtn"></button>
+              <div class="suggestions-list"></div>
+            </div>
+
+          </div>
+
+          <div class="translate">
+            <i class="fas fa-language fa-lg"></i>
+          </div>
+
+
+        </div>
+      </header>
+    </div>
+    <!-- SideBar Start -->
+
+    <section class="sidebar__overlay">
+      <div class="sidebar">
+        <div class="sidebar__top">
+          <div class="sidebar__header">
+            <img src={% static "images/Transparent-logo.png" %} alt=""
+            class="logo-side">
+            <div class="close__icon">
+              <i class="fa-regular fa-circle-xmark closeIcon"></i>
+            </div>
+          </div>
+
+          <ul class="sidebar__list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="{% url "about" %}">About</a></li>
+            {% comment %} <li><a href="service.html">Services</a></li> {% endcomment %}
+            <li><a href="projects.html">Our Project</a></li>
+            <li><a href="news.html">Latest News</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+
+        <ul class="sidebar__bottom">
+          <li>
+            <a href="#" id=""><i class="fa-brands fa-facebook"></i></a>
+          </li>
+          <li>
+            <a href=""><i class="fa-brands fa-twitter"></i></a>
+          </li>
+          <li>
+            <a href=""><i class="fa-brands fa-pinterest-p"></i></a>
+          </li>
+          <li>
+            <a href=""><i class="fa-brands fa-instagram"></i></a>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <!-- SideBar End -->
+    <!-- Content Section -->
+    <div class="content">{% block content %}{% endblock %}</div>
+
+    
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+      const searchInput = document.getElementById('searchInput');
+      
+      //searchBox.addEventListener('input', function(e) {
+      //    // Handle search input
+      //    console.log('Search query:', e.target.value);
+      //    // Add your search logic here
+      //});
+      //
+      //searchInput.addEventListener('focus', function() {
+      //    this.parentElement.style.transform = 'scale(1.01)';
+      //});
+      //
+      //searchInput.addEventListener('blur', function() {
+      //    this.parentElement.style.transform = 'scale(1)';
+      //});
+      </script>
+  </body>
+</html>
