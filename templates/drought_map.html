@@ -2,60 +2,6 @@
 {% extends "dash-base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% load static %}
-{% load leaflet_tags %}
-
-{% block extra_css %}
-{% leaflet_js %}
-{% leaflet_css %}
-    <style>
-        .leaflet-container {
-            height: 100%%;
-        }
-        #info-panel {
-            /*position: absolute;*/
-            /*top: 10px;
-            right: 10px;
-            z-index: 1000;*/
-            /*background: white;*/
-            padding: 2rem;
-            border-radius: 4px;
-            /*box-shadow: 0 0 10px rgba(0,0,0,0.2);*/
-            display: block;
-            flex: 1;
-        }
-        #main { height: 100%%; }
-        #searchBox {
-            position: absolute;
-            top: 10px;
-            left: 50px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
-        #detailsPanel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 4px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            max-width: 300px;
-            display: none;
-        }
-        .close-button {
-            float: right;
-            cursor: pointer;
-        }
-
-        .leaflet-top{
-            z-index: 900 !important;
-        }
-    </style>
-{% endblock %}
 
 {% block content %}
 
@@ -80,13 +26,6 @@
             </div>
         </div>
             
-
-        <!-- Map container -->
-        <div class="dashboard-grid-map  overflow-auto p-4 m-2">
-            
-            {% leaflet_map "main" callback="window.map_init_basic" %}
-
-        </div>
     </div>
 </div>
 

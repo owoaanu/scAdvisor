@@ -33,6 +33,10 @@
       }
 
       .tz-map-dash .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         background-color: #f9f9f9;
         height: 4em;
         padding: 0 20px;
@@ -216,6 +220,10 @@
       line-height: 1.3;
     }
 
+    body {
+    padding-top: 4em; /* Matches navbar height */
+    }
+
     </style>
   </head>
   <body>
@@ -224,10 +232,9 @@
       <header class="header tz-map-dash ">
         <div class="navbar">
           <div class="navbar-group">
-            
             <div class="navbar__logo">
-              <a href="{% url "index" %}" class="">
-                <img src={% static "images/Transparent-logo.png" %} alt=""
+              <a href="{% url 'index' %}" class="">
+                <img src="{% static 'images/Transparent-logo.png' %}" alt=""
                 class="logo-side">
               </a>
             </div>
@@ -259,7 +266,7 @@
       <div class="sidebar">
         <div class="sidebar__top">
           <div class="sidebar__header">
-            <img src={% static "images/Transparent-logo.png" %} alt=""
+            <img src="{% static 'images/Transparent-logo.png' %}" alt=""
             class="logo-side">
             <div class="close__icon">
               <i class="fa-regular fa-circle-xmark closeIcon"></i>
@@ -268,7 +275,7 @@
 
           <ul class="sidebar__list">
             <li><a href="index.html">Home</a></li>
-            <li><a href="{% url "about" %}">About</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
             {% comment %} <li><a href="service.html">Services</a></li> {% endcomment %}
             <li><a href="projects.html">Our Project</a></li>
             <li><a href="news.html">Latest News</a></li>

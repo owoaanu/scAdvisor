@@ -1,0 +1,90 @@
+{% extends "base.html" %} 
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% comment %} <div class="__hero"></div> {% endcomment %}
+
+<section class="DashBoard">
+  <div>
+      <section class="top">
+          <h1>Smart Climate</h1>
+          <div>
+              <i class="fa-solid fa-house"></i>
+              <p>DashBoard</p>
+          </div>
+          <div>
+              <i class="fa-solid fa-calendar-days"></i>
+              <p>Monthly Outlook</p>
+          </div>
+          <div id="change">
+              <i class="fa-solid fa-chart-simple"></i>
+              <p>Analytics</p>
+          </div>
+          <div>
+              <i class="fa-regular fa-newspaper"></i>
+              <p>News</p>
+          </div>
+          <div id="change">
+              <i class="fa-solid fa-gear"></i>
+              <p>Settings</p>
+          </div>
+          <hr class="line">
+          <div>
+              <i class="fa-regular fa-circle-question"></i>
+              <p>Help</p>
+          </div>
+          <div>
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <p>Logout</p>
+          </div>
+      </section>
+      <section class="bottom">
+          <hr class="line">
+          <segment>
+              <img src="images/testimonial1.jpg" alt="">
+              <div>
+                  <p style="font-weight: bold;">Elena</p>
+                  <p>Smartclimate@email.com</p>
+              </div>
+          </segment>
+      </section>
+  </div>
+  <div><img src="images/DashBoard/dashboard-banner.png" alt=""></div>
+  <div><img src="images/DashBoard/performance.png" alt=""></div>
+  <div>
+      <p class="big-size">Predictions</p>
+      <div>
+          <section>
+              <p>Draugh</p>
+              <p style="font-weight: bold;">15 Aug 24</p>
+          </section>
+          <section>
+              <p>Flood</p>
+              <p style="font-weight: bold;">18 Aug 24</p>
+          </section>
+          <section>
+              <p>Flood</p>
+              <p style="font-weight: bold;">23 Aug 24</p>
+          </section>
+          <section>
+              <p>Flood</p>
+              <p style="font-weight: bold;">24 Aug 24</p>
+          </section>
+          <section>
+              <p>Flood</p>
+              <p style="font-weight: bold;">25 Aug 24</p>
+          </section>
+          <section>
+              <p>Draugh</p>
+              <p style="font-weight: bold;">26 Aug 24</p>
+          </section>
+      </div>
+  </div>
+  <div><img src="images/DashBoard/performance.png" alt=""></div>
+  <div>
+      <p class="big-size">Total Count</p>
+      <img src="images/DashBoard/Group 107.png" alt="">
+  </div>
+</section>
+<script src="script.js"></script>
+{% endblock %}

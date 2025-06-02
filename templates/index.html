@@ -1,5 +1,8 @@
-{% extends "base.html" %} {% load static %}
-<div>{% block title %}Home{% endblock %} {% block content %}</div>
+{% extends "base.html" %} 
+{% load static %}
+
+{% block title %}Home{% endblock %} 
+{% block content %}
 <div class="hero">
   <video autoplay muted loop id="background-video">
     <source src="{% static 'images/Farm.mp4' %}" type="video/mp4" />
@@ -27,7 +30,7 @@
 <div class="about__section container">
   <div class="about">
     <div class="about__image">
-      <img src={% static "images/about-us-2.jpg" %} alt="">
+      <img src="{% static 'images/about-us-2.jpg' %}" alt="">
     </div>
     <div class="about__text">
       <h2>About Us</h2>
@@ -75,8 +78,8 @@
   <div class="sca__heading">
     <h2>Smart Climate Advisor Offers <br />Best Climate</h2>
     <div class="sca__images">
-      <div><img src="{% static "images/V1.jpg" %}" class="top"></div>
-      <div><img src="{% static "images/V2.jpg" %}" class="top"></div>
+      <div><img src="{% static 'images/V1.jpg' %}" class="top"></div>
+      <div><img src="{% static 'images/V2.jpg' %}" class="top"></div>
       <div>
         <img src="{% static 'images/V3.jpg' %}" class="top" />
       </div>
@@ -108,113 +111,5 @@
     <source src="{% static '/images/grass.mp4' %}" type="video/mp4" />
   </video>
 </div>
-
-<!-- testimonies  -->
-{% comment %} <div class="testimonials">
-  <h2>What They Say</h2>
-  <div class="testimonial">
-    <div class="content">
-      <div class="icon">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa-regular fa-star"></i>
-        <p>
-          Smart Climate Advisor has helped us avoid crop losses by providing
-          accurate weather predictions.<span class="remove">
-            It’s like having a guide through Tanzania’s unpredictable climate.
-          </span>
-        </p>
-      </div>
-      <div>
-        <hr class="line" />
-        <div class="profile">
-          <img src="{% static "images/testimonial1.jpg" %}" alt="" />
-          <div>
-            <h3>John M</h3>
-            <p>Maize Farmer</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="content">
-      <div class="icon">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <p>
-          "With Smart Climate Advisor, we can confidently plan our farming
-          activities, leading to better yields and a more secure livelihood."
-        </p>
-      </div>
-      <div>
-        <hr class="line" />
-        <div class="profile">
-          <img src="{% static "images/testimonial2.jpg" %}" alt="" />
-          <div>
-            <h3>Amina K</h3>
-            <p>Rice Farmer</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="content">
-      <div class="icon">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa-regular fa-star"></i>
-        <p>
-          Smart Climate Advisor has helped us avoid crop losses by providing
-          accurate weather predictions.
-          <span class="remove"
-            >It’s like having a guide through Tanzania’s unpredictable
-            climate.</span
-          >
-        </p>
-      </div>
-      <div>
-        <hr class="line" />
-        <div class="profile">
-          <img src="{% static "images/testimonial3.jpg" %}" alt="" />
-          <div>
-            <h3>Moses N</h3>
-            <p>Coffee Grower</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="content">
-      <div class="icon">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa-regular fa-star"></i>
-        <p>
-          Smart Climate Advisor has helped us avoid crop losses by providing
-          accurate weather predictions.
-          <span class="remove">
-            It’s like having a guide through Tanzania’s unpredictable climate.
-          </span>
-        </p>
-      </div>
-      <div>
-        <hr class="line" />
-        <div class="profile">
-          <img src="{% static "images/testimonial3.jpg" %}" alt="" />
-          <div>
-            <h3>John M</h3>
-            <p>Maize Farmer</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> {% endcomment %}
 
 {% endblock %}

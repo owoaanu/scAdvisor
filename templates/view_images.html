@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EMS Chart Images</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .image-block { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; }
+        img { max-width: 100%; height: auto; border: 1px solid #ddd; }
+        form { margin-bottom: 20px; }
+        input, select { padding: 5px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <h1>EMS Chart Images</h1>
+
+    <form method="get">
+        <input type="text" name="loc_name" placeholder="Search by location" value="{{ loc_name }}">
+        <select name="interval">
+            <option value="">All Intervals</option>
+            <option value="2" {% if interval == '2' %}selected{% endif %}>2 Days</option>
+            <option value="5" {% if interval == '5' %}selected{% endif %}>5 Days</option>
+            <option value="10" {% if interval == '10' %}selected{% endif %}>10 Days</option>
+            <option value="30" {% if interval == '30' %}selected{% endif %}>30 Days</option>
+            <option value="60" {% if interval == '60' %}selected{% endif %}>60 Days</option>
+            <option value="Year" {% if interval == 'Year' %}selected{% endif %}>Year</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    {% for img in images %}
+        <div class="image-block">
+            <h2>{{ img.loc_name }} (Interval: {{ img.interval }})</h2>
+            <img src="{{ img.url }}" alt="Chart Image for {{ img.loc_name }}">
+            <p>Received at: {{ img.received_at }}</p>
+        </div>
+    {% empty %}
+        <p>No chart images found.</p>
+    {% endfor %}
+</body>
+</html>

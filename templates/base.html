@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-    {% comment %} <link rel="stylesheet" href="{% static 'css/old_style.css' %}" /> {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/reusableStyles.css' %}" />
     <link rel="stylesheet" href="{% static 'css/responsiveness.css' %}" />
     <script
@@ -34,31 +33,31 @@
 
           <ul class="nav__items">
             <li>
-            <a href={% url "index" %}>Home</a>
+            <a href="{% url 'index' %}">Home</a>
             </li>
             <li>
-            <a href={% url "about" %}>About</a>
+            <a href="{% url 'about' %}">About</a>
             </li>
             {% comment %} <li><a href="{% url "projects" %}">Project</a></li> {% endcomment %}
-            <li><a href="{% url "contact" %}">Contact</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
           </ul>
 
           {% if user.is_authenticated %}
           <div class="authenticated">
           <div class="nav__btn btn">
-              <a href="{% url "dashboard" %}">
+              <a href="{% url 'dashboard' %}">
                 <button class="btn">Dashboard</button>
               </a>
         </div>
             <div class="nav__btn btn">
-              <a href="{% url "signout" %}">
+              <a href="{% url 'signout' %}">
             <button class="btn">Logout</button>
           </a>
           </div>
           </div>
           {% else %}
           <div class="nav__btn btn">
-              <a href="{% url "signup" %}">
+              <a href="{% url 'signup' %}">
                 <button class="btn">Signup</button>
             </a>
           </div>
@@ -74,8 +73,8 @@
       <div class="sidebar">
         <div class="sidebar__top">
           <div class="sidebar__header">
-            <a href="{% url "index" %}" class="">
-              <img src={% static "images/Transparent-logo.png" %} alt=""
+            <a href="{% url 'index' %}" class="">
+              <img src="{% static 'images/Transparent-logo.png' %}" alt=""
               class="logo-side">
             </a>
             <div class="close__icon">
@@ -84,12 +83,12 @@
           </div>
 
           <ul class="sidebar__list">
-            <li><a href={% url "index" %}>Home</a></li>
-            <li><a href="{% url "about" %}">About</a></li>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
             {% comment %} <li><a href="service.html">Services</a></li> {% endcomment %}
             {% comment %} <li><a href="projects.html">Project</a></li> {% endcomment %}
             {% comment %} <li><a href="news.html">Latest News</a></li> {% endcomment %}
-            <li><a href="{% url "contact" %}>Contact</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
           </ul>
         </div>
 
@@ -116,58 +115,23 @@
     <!-- footer  --><!-- footer  -->
     <footer>
         <div>
-            <img src="{% static "images/fav-icon.png" %}" alt="">
+            <img src="{% static 'images/fav-icon.png' %}" alt="">
             <p class="remove-550">We believe that by equipping farmers with the right tools and knowledge, we can contribute to food security, economic stability, and sustainable farming practices.</p>
             </p>
-            {% comment %} <div class="socials">
-                <div>
-                    <a href=""><i class="fa-brands fa-twitter"></i></a>
-                </div>
-                <div>
-                    <a href=""><i class="fa-brands fa-facebook"></i></a>
-                </div>
-                <div>
-                    <a href=""><i class="fa-brands fa-pinterest-p"></i></a>
-                </div>
-                <div>
-                    <a href=""><i class="fa-brands fa-instagram"></i></a>
-                </div>
-            </div> {% endcomment %}
         </div>
         <div class="remove-770">
             <h3 id="heading-3">Explore</h3>
             <ul>
               <li>
-                <a href={% url "index" %}>Home</a>
+                <a href="{% url 'index' %}">Home</a>
                 </li>
                 <li>
-                <a href={% url "about" %}>About</a>
+                <a href="{% url 'about' %}">About</a>
                 </li>
                 {% comment %} <li><a href="{% url "projects" %}">Project</a></li> {% endcomment %}
-                <li><a href="{% url "contact" %}">Contact</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
             </ul>
         </div>
-        {% comment %} <div class="remove">
-            <h3 id="heading-3">News</h3>
-            <div class="news">
-                <div class="new">
-                    <img src="{% static "images/Rectangle 23.png" %}" alt="">
-                    <div>
-                        <p>Drought Alert on the 2nd July 2024 <br>
-                            Farmers sho... </p>
-                        <p class="color-yellow" id="date">Aug 31, 2024</p>
-                    </div>
-                </div>
-                <div class="new">
-                    <img src="{% static "images/Rectangle 23.png" %}" alt="">
-                    <div>
-                        <p class="remove">Why farmers should not farm from <br>
-                            September to oct...</p>
-                        <p class="color-yellow" id=" date">Aug 31, 2024</p>
-                    </div>
-                </div>
-            </div>
-        </div> {% endcomment %}
         <div class="contact-det">
             <h3 id="heading-3">Contact</h3>
             <ul class="contacts">

@@ -1,89 +1,254 @@
-{% extends "base.html" %} {% load static %}
-<div>{% block title %}Dashboard{% endblock %} </div>
-{% block content %}
-{% comment %} <div class="__hero"></div> {% endcomment %}
+{% extends 'dash-base.html' %}
+{% load static %}
 
-<section class="DashBoard">
-  <div>
-      <section class="top">
-          <h1>Smart Climate</h1>
-          <div>
-              <i class="fa-solid fa-house"></i>
-              <p>DashBoard</p>
-          </div>
-          <div>
-              <i class="fa-solid fa-calendar-days"></i>
-              <p>Monthly Outlook</p>
-          </div>
-          <div id="change">
-              <i class="fa-solid fa-chart-simple"></i>
-              <p>Analytics</p>
-          </div>
-          <div>
-              <i class="fa-regular fa-newspaper"></i>
-              <p>News</p>
-          </div>
-          <div id="change">
-              <i class="fa-solid fa-gear"></i>
-              <p>Settings</p>
-          </div>
-          <hr class="line">
-          <div>
-              <i class="fa-regular fa-circle-question"></i>
-              <p>Help</p>
-          </div>
-          <div>
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <p>Logout</p>
-          </div>
-      </section>
-      <section class="bottom">
-          <hr class="line">
-          <segment>
-              <img src="images/testimonial1.jpg" alt="">
-              <div>
-                  <p style="font-weight: bold;">Elena</p>
-                  <p>Smartclimate@email.com</p>
-              </div>
-          </segment>
-      </section>
-  </div>
-  <div><img src="images/DashBoard/dashboard-banner.png" alt=""></div>
-  <div><img src="images/DashBoard/performance.png" alt=""></div>
-  <div>
-      <p class="big-size">Predictions</p>
-      <div>
-          <section>
-              <p>Draugh</p>
-              <p style="font-weight: bold;">15 Aug 24</p>
-          </section>
-          <section>
-              <p>Flood</p>
-              <p style="font-weight: bold;">18 Aug 24</p>
-          </section>
-          <section>
-              <p>Flood</p>
-              <p style="font-weight: bold;">23 Aug 24</p>
-          </section>
-          <section>
-              <p>Flood</p>
-              <p style="font-weight: bold;">24 Aug 24</p>
-          </section>
-          <section>
-              <p>Flood</p>
-              <p style="font-weight: bold;">25 Aug 24</p>
-          </section>
-          <section>
-              <p>Draugh</p>
-              <p style="font-weight: bold;">26 Aug 24</p>
-          </section>
-      </div>
-  </div>
-  <div><img src="images/DashBoard/performance.png" alt=""></div>
-  <div>
-      <p class="big-size">Total Count</p>
-      <img src="images/DashBoard/Group 107.png" alt="">
-  </div>
-</section>
-<script src="script.js"></script>
+
+{% block extra_css %}
+<style>
+    /* Main Dashboard Layout */
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 4em); /* Subtract navbar height */
+        background-color: #f5f7fa;
+        padding: 20px;
+    }
+
+    /* Control Panel */
+    .control-panel {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .location-selector {
+        flex: 1;
+        margin-right: 20px;
+    }
+
+    .interval-selector {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Visualization Area */
+    .visualization-area {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 20px;
+        overflow: hidden;
+    }
+
+    /* Channel List */
+    .channel-list {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+
+    .channel-item {
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .channel-item:hover {
+        background-color: #e6f7ff;
+    }
+
+    .channel-item.active {
+        background-color: #1890ff;
+        color: white;
+    }
+
+    /* Chart Display */
+    .chart-display {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .chart-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .chart-meta {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .visualization-area {
+            grid-template-columns: 1fr;
+        }
+        
+        .control-panel {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .location-selector {
+            width: 100%;
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="location-selector">
+            <label for="location-select"><strong>Select Region:</strong></label>
+            <select id="location-select" class="form-control" onchange="updateDashboard()">
+                <option value="">-- Select a region --</option>
+                {% for locality in localities %}
+                    <option value="{{ locality }}" {% if locality == selected_locality %}selected{% endif %}>
+                        {{ locality }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="interval-selector">
+            <button class="btn interval-btn active" data-interval="1">1 Day</button>
+            <button class="btn interval-btn" data-interval="5">5 Days</button>
+            <button class="btn interval-btn" data-interval="10">10 Days</button>
+        </div>
+    </div>
+
+    <!-- Visualization Area -->
+    <div class="visualization-area">
+        <!-- Channel List -->
+        <div class="channel-list" id="channel-list">
+            <h3>Available Channels</h3>
+            <div class="channel-list-content">
+                {% if images %}
+                    {% for image in images.1_day %}
+                        <div class="channel-item" data-channel="{{ image.channel_id }}" onclick="showChannel(this, {{ image.channel_id }})">
+                            Channel {{ image.channel_id }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No channels available. Select a region to load data.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Chart Display -->
+        <div class="chart-display">
+            <div class="chart-container" id="chart-container">
+                {% if images %}
+                    <img src="{{ images.1_day.0.image.url }}" alt="Channel Chart" id="main-chart">
+                {% else %}
+                    <p>Select a channel to display chart</p>
+                {% endif %}
+            </div>
+            
+            <div class="chart-meta">
+                <h3 id="chart-title">{% if images %}Channel {{ images.1_day.0.channel_id }}{% else %}No Channel Selected{% endif %}</h3>
+                <p id="chart-location">{% if selected_locality %}{{ selected_locality }}{% endif %}</p>
+                <p id="chart-interval">1 Day View</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Current state
+    let currentState = {
+        locality: "{{ selected_locality|default:'' }}",
+        interval: "1",
+        channel: "{% if images %}{{ images.1_day.0.channel_id }}{% endif %}"
+    };
+
+    // Update dashboard when location changes
+    function updateDashboard() {
+        const locality = document.getElementById('location-select').value;
+        window.location.href = `{% url 'dashboard' %}?locality=${encodeURIComponent(locality)}`;
+    }
+
+    // Handle interval selection
+    document.querySelectorAll('.interval-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active button
+            document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update current interval
+            currentState.interval = this.dataset.interval;
+            updateChart();
+        });
+    });
+
+    // Show selected channel
+    function showChannel(element, channelId) {
+        // Update active channel in list
+        document.querySelectorAll('.channel-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+        
+        // Update current channel
+        currentState.channel = channelId;
+        updateChart();
+    }
+
+    // Update the displayed chart
+    function updateChart() {
+        if (!currentState.locality || !currentState.channel) return;
+        
+        // In a real implementation, this would fetch the correct image from your backend
+        // For this example, we'll just simulate it
+        const chartImg = document.getElementById('main-chart');
+        if (chartImg) {
+            // This would be replaced with actual image URL from your data
+            chartImg.src = `{% static 'images/placeholder-chart.png' %}`;
+            chartImg.alt = `Channel ${currentState.channel} - ${currentState.interval} day view`;
+        }
+        
+        // Update metadata
+        document.getElementById('chart-title').textContent = `Channel ${currentState.channel}`;
+        document.getElementById('chart-location').textContent = currentState.locality;
+        document.getElementById('chart-interval').textContent = `${currentState.interval} Day View`;
+        
+        console.log(`Updated chart for Channel ${currentState.channel}, ${currentState.interval} days`);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        if (currentState.channel) {
+            // Highlight the first channel by default
+            const firstChannel = document.querySelector(`.channel-item[data-channel="${currentState.channel}"]`);
+            if (firstChannel) {
+                firstChannel.classList.add('active');
+            }
+        }
+    });
+</script>
 {% endblock %}

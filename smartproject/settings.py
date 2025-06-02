@@ -39,18 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'smartapp',
-
     'oauth2_provider',
 
-    # 'folium',
-    # 'ipyleaflet',
-    # 'IPython',
-    # 'ipywidgets',
-    # 'jupyter_leaflet',
-    # 'jupyterlab_widgets',
-    'leaflet',
-
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -153,4 +145,8 @@ LEAFLET_CONFIG = {
     'ZOOM_CONTROL': False
     # 'ATTRIBUTION_PREFIX': 'Your data attribution here'
 }
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
