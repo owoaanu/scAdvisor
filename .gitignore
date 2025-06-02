@@ -4,3 +4,4 @@ db.sqlite3
 # This is my virtual environment
 /cenv/__pycache__/
 *.pyc
+__pycache__/
