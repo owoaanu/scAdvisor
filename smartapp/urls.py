@@ -17,7 +17,8 @@ urlpatterns =  [
 
     # path("ems-callback/", views.ems_callback, name="ems_callback"),
 
-    path('ems-callback/', views.ems_callback),
+    # path('ems-callback/', views.ems_callback),
+    path('ems-callback/', views.ems_data_callback, name='ems_callback'),
     path('dashboard/', views.dashboard, name='dashboard'),
      
     ]

@@ -92,101 +92,86 @@ def leaf_map_view(request):
 
 
 
-import requests
 import json
+import requests
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import EMSLocality, EMSChannel, EMSData
 from django.core.files.base import ContentFile
-from django.http import HttpResponse
-from .models import EMSLocality, EMSImage
+from datetime import datetime
 
 @csrf_exempt
-def ems_callback(request):
+def ems_data_callback(request):
     if request.method != 'POST':
-        return HttpResponse(status=405)
+        return JsonResponse({'error': 'Only POST allowed'}, status=405)
     
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return HttpResponse(status=400, content="Invalid JSON")
-    site = data.get('site')
-    loc_name = data.get('locName')  # Note: changed from locName to locName
-    cultures = data.get('cultures', {})
-
-    if not site or not loc_name or not cultures:
-        return HttpResponse(
-            status=400, 
-            content="Missing required fields (site, locName, or cultures)"
+        
+        # Required fields from callback
+        site = data['site']
+        loc_name = data['lockame']  # Note: API uses 'lockame' not 'locName'
+        timezone = data['timeZone']
+        channels_url = data['channels']
+        data_intervals = data['data']  # Dict of interval URLs
+        
+        # Optional field
+        last_verified = data.get('lastVerified')
+        
+        # 1. Get channel information
+        channels_response = requests.get(f"{channels_url}&inclLocality=true")
+        channels_response.raise_for_status()
+        channels_data = channels_response.json()
+        
+        # 2. Create/update locality
+        locality, _ = EMSLocality.objects.update_or_create(
+            site=site,
+            loc_name=loc_name,
+            defaults={
+                'timezone': timezone,
+                'last_verified': datetime.fromisoformat(last_verified) if last_verified else None
+            }
         )
-    
-    # Process each culture
-    for culture, culData in cultures.items():
-        try:
-            # Get channel metadata using the first interval available
-            first_interval = next(iter(culData.get('channels', {}).keys()), None)
-            if not first_interval:
-                continue
-                
-            channels_url = culData['channels'][first_interval]['url'] + "&inclLocality=true"
-            
-            # Make request with timeout
-            response = requests.get(channels_url, timeout=10)
-            response.raise_for_status()
-            channels_info = response.json()
-            
-            # Extract locality info
-            locality_info = channels_info['localities'][site][loc_name]
-            
-            # Create or update locality
-            locality, _ = EMSLocality.objects.update_or_create(
-                site=site,
-                locName=loc_name,
+        
+        # 3. Process channels
+        for channel_id, channel_info in channels_data['channels'].items():
+            channel, _ = EMSChannel.objects.update_or_create(
+                locality=locality,
+                channel_id=int(channel_id),
                 defaults={
-                    'title': locality_info.get('title', ''),
-                    'url': locality_info.get('url', ''),
-                    'lat': locality_info.get('lat'),
-                    'lng': locality_info.get('lng'),
-                    'timezone': locality_info.get('timezone', ''),
+                    'title': channel_info['title'],
+                    'default_title': channel_info.get('defaultTitle', channel_info['title']),
+                    'range_group': channel_info['rangeGroup']
                 }
             )
             
-            # Process images for selected intervals
-            for interval in ['1', '5', '10']:
-                if interval not in culData.get('chart', {}):
-                    continue
+            # 4. Process data for each interval
+            for interval, url_info in data_intervals.items():
+                data_url = url_info['url']
                 
-                for channel_id, chart_info in culData['chart'][interval].items():
-                    try:
-                        image_url = chart_info['url'] + "&width=800&height=400"  # Larger images
-                        
-                        # Download image with timeout
-                        img_response = requests.get(image_url, timeout=10)
-                        img_response.raise_for_status()
-                        
-                        # Generate unique filename
-                        img_name = f"ems_{loc_name}_{channel_id}_{culture}_{interval}.png"
-                        
-                        # Save image
-                        ems_image = EMSImage(
-                            locality=locality,
-                            channel_id=int(channel_id),
-                            culture=culture,
-                            interval=interval
+                # Add format=json if not present
+                if 'format=json' not in data_url.lower():
+                    data_url += '&format=json' if '?' in data_url else '?format=json'
+                
+                data_response = requests.get(data_url)
+                data_response.raise_for_status()
+                interval_data = data_response.json()
+                
+                # Store data points
+                for time_entry in interval_data['time']:
+                    for channel_data in interval_data['channels']:
+                        EMSData.objects.update_or_create(
+                            channel=channel,
+                            timestamp=time_entry['timestamp'],
+                            interval=interval,
+                            defaults={'value': channel_data['value']}
                         )
-                        ems_image.image.save(
-                            img_name,
-                            ContentFile(img_response.content),
-                            save=True
-                        )
-                        
-                    except (requests.RequestException, ValueError) as e:
-                        print(f"Error processing image {channel_id}: {str(e)}")
-                        continue
-            
-        except requests.RequestException as e:
-            print(f"Error processing culture {culture}: {str(e)}")
-            continue
-        except KeyError as e:
-            print(f"Missing expected data in response for {culture}: {str(e)}")
-            continue
+        
+        return JsonResponse({'status': 'success'})
     
-    return HttpResponse(status=200, content="Callback processed successfully")
+    except KeyError as e:
+        return JsonResponse({'error': f'Missing required field: {str(e)}'}, status=400)
+    except requests.RequestException as e:
+        return JsonResponse({'error': f'API request failed: {str(e)}'}, status=502)
+    except Exception as e:
+        return JsonResponse({'error': f'Processing error: {str(e)}'}, status=500)
