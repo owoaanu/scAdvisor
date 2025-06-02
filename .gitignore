@@ -2,4 +2,5 @@
 /static/basic_site
 db.sqlite3
 # This is my virtual environment
-/cenv/
+/cenv/__pycache__/
+*.pyc
