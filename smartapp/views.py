@@ -61,11 +61,6 @@ def signout(request):
     return redirect('/')
 
 
-# @login_required(redirect_field_name="signin")
-# def dashboard(request):
-#     return render(request, 'dashboard.html')
-
-
 @login_required
 def dashboard(request):
     localities = EMSLocality.objects.filter(site='NM-AIST').values_list('loc_name', flat=True).distinct()
@@ -92,7 +87,6 @@ def leaf_map_view(request):
 
 
 
-import json
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
