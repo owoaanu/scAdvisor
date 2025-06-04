@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns =  [
     path('', views.index, name='index'),
@@ -20,5 +22,10 @@ urlpatterns =  [
     # path('ems-callback/', views.ems_callback),
     path('ems-callback/', views.ems_data_callback, name='ems_callback'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    
+    path('ems-image-callback/', views.ems_image_callback, name='ems_image_callback'),
      
     ]
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

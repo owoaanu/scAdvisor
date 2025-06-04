@@ -149,10 +149,15 @@
             <h3>Available Channels</h3>
             <div class="channel-list-content">
                 {% if images %}
-                    {% for image in images.1_day %}
-                        <div class="channel-item" data-channel="{{ image.channel_id }}" onclick="showChannel(this, {{ image.channel_id }})">
-                            Channel {{ image.channel_id }}
-                        </div>
+                    {% for interval, image_list in images.items %}
+                        {% for image in image_list %}
+                            <div class="channel-item" 
+                                 data-channel="{{ image.channel.channel_id }}" 
+                                 data-interval="{{ interval }}"
+                                 onclick="showChannel(this, {{ image.channel.channel_id }}, '{{ interval }}')">
+                                Channel {{ image.channel.channel_id }} - {{ image.channel.title }}
+                            </div>
+                        {% endfor %}
                     {% endfor %}
                 {% else %}
                     <p>No channels available. Select a region to load data.</p>
@@ -164,16 +169,34 @@
         <div class="chart-display">
             <div class="chart-container" id="chart-container">
                 {% if images %}
-                    <img src="{{ images.1_day.0.image.url }}" alt="Channel Chart" id="main-chart">
+                    {% with first_image=images.1_day|first %}
+                        <img src="{{ first_image.image.url }}" alt="Channel Chart" id="main-chart">
+                    {% endwith %}
                 {% else %}
                     <p>Select a channel to display chart</p>
                 {% endif %}
             </div>
             
             <div class="chart-meta">
-                <h3 id="chart-title">{% if images %}Channel {{ images.1_day.0.channel_id }}{% else %}No Channel Selected{% endif %}</h3>
+                <h3 id="chart-title">
+                    {% if images %}
+                        {% with first_image=images.1_day|first %}
+                            Channel {{ first_image.channel.channel_id }}: {{ first_image.channel.title }}
+                        {% endwith %}
+                    {% else %}
+                        No Channel Selected
+                    {% endif %}
+                </h3>
                 <p id="chart-location">{% if selected_locality %}{{ selected_locality }}{% endif %}</p>
                 <p id="chart-interval">1 Day View</p>
+                <div id="channel-metadata">
+                    {% if images %}
+                        {% with first_image=images.1_day|first %}
+                            <p>Range Group: {{ first_image.channel.range_group }}</p>
+                            <p>Last Updated: {{ first_image.created_at|date:"Y-m-d H:i" }}</p>
+                        {% endwith %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -184,7 +207,7 @@
     let currentState = {
         locality: "{{ selected_locality|default:'' }}",
         interval: "1",
-        channel: "{% if images %}{{ images.1_day.0.channel_id }}{% endif %}"
+        channel: "{% if images %}{{ images.1_day.0.channel.channel_id }}{% endif %}"
     };
 
     // Update dashboard when location changes
@@ -207,15 +230,16 @@
     });
 
     // Show selected channel
-    function showChannel(element, channelId) {
+    function showChannel(element, channelId, interval) {
         // Update active channel in list
         document.querySelectorAll('.channel-item').forEach(item => {
             item.classList.remove('active');
         });
         element.classList.add('active');
         
-        // Update current channel
+        // Update current channel and interval
         currentState.channel = channelId;
+        currentState.interval = interval;
         updateChart();
     }
 
@@ -223,25 +247,37 @@
     function updateChart() {
         if (!currentState.locality || !currentState.channel) return;
         
-        // In a real implementation, this would fetch the correct image from your backend
-        // For this example, we'll just simulate it
-        const chartImg = document.getElementById('main-chart');
-        if (chartImg) {
-            // This would be replaced with actual image URL from your data
-            chartImg.src = `{% static 'images/placeholder-chart.png' %}`;
-            chartImg.alt = `Channel ${currentState.channel} - ${currentState.interval} day view`;
+        // Find the image for the current channel and interval
+        const channelItems = document.querySelectorAll(`.channel-item[data-channel="${currentState.channel}"][data-interval="${currentState.interval}"]`);
+        if (channelItems.length > 0) {
+            const imageUrl = channelItems[0].getAttribute('data-image-url');
+            const channelTitle = channelItems[0].textContent.trim();
+            
+            const chartImg = document.getElementById('main-chart');
+            if (chartImg) {
+                chartImg.src = imageUrl;
+                chartImg.alt = `${channelTitle} - ${currentState.interval} day view`;
+            }
+            
+            // Update metadata
+            document.getElementById('chart-title').textContent = channelTitle;
+            document.getElementById('chart-location').textContent = currentState.locality;
+            document.getElementById('chart-interval').textContent = `${currentState.interval} Day View`;
+            
+            // You could add an AJAX call here to get additional channel metadata if needed
         }
-        
-        // Update metadata
-        document.getElementById('chart-title').textContent = `Channel ${currentState.channel}`;
-        document.getElementById('chart-location').textContent = currentState.locality;
-        document.getElementById('chart-interval').textContent = `${currentState.interval} Day View`;
-        
-        console.log(`Updated chart for Channel ${currentState.channel}, ${currentState.interval} days`);
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
+        // Set data-image-url attributes on all channel items
+        document.querySelectorAll('.channel-item').forEach(item => {
+            const channelId = item.getAttribute('data-channel');
+            const interval = item.getAttribute('data-interval');
+            // This assumes your image URLs follow a consistent pattern
+            item.setAttribute('data-image-url', `/media/ems_images/chart_${currentState.locality}_${channelId}_${interval}.png`);
+        });
+
         if (currentState.channel) {
             // Highlight the first channel by default
             const firstChannel = document.querySelector(`.channel-item[data-channel="${currentState.channel}"]`);

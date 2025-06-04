@@ -39,3 +39,15 @@ class EMSData(models.Model):
     
     def __str__(self):
         return f"{self.channel} at {self.timestamp}"
+    
+
+class EMSImage(models.Model):
+    locality = models.ForeignKey(EMSLocality, on_delete=models.CASCADE)
+    channel = models.ForeignKey(EMSChannel, on_delete=models.CASCADE)
+    interval = models.CharField(max_length=10)
+    culture = models.CharField(max_length=10)
+    image = models.ImageField(upload_to='ems_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.locality} - Channel {self.channel} ({self.interval} days)"
