@@ -68,15 +68,15 @@ def signout(request):
 
 @login_required
 def dashboard(request):
-    localities = EMSLocality.objects.filter(site='NM-AIST').values_list('locName', flat=True).distinct()
+    localities = EMSLocality.objects.filter(site='NM-AIST').values_list('loc_name', flat=True).distinct()
     selected_locality = request.GET.get('locality')
     
     images = {}
     if selected_locality:
         images = {
-            '1_day': EMSImage.objects.filter(locality__locName=selected_locality, interval='1'),
-            '5_days': EMSImage.objects.filter(locality__locName=selected_locality, interval='5'),
-            '10_days': EMSImage.objects.filter(locality__locName=selected_locality, interval='10'),
+            '1_day': EMSImage.objects.filter(locality__loc_name=selected_locality, interval='1'),
+            '5_days': EMSImage.objects.filter(locality__loc_name=selected_locality, interval='5'),
+            '10_days': EMSImage.objects.filter(locality__loc_name=selected_locality, interval='10'),
         }
     
     return render(request, 'dashboard.html', {
