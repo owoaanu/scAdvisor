@@ -123,14 +123,14 @@ def ems_data_callback(request):
             return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
         
         # Required fields validation
-        required_fields = ['site', 'lockame', 'timeZone', 'channels', 'data']
+        required_fields = ['site', 'locName', 'timeZone', 'channels', 'data']
         for field in required_fields:
             if field not in data:
                 return JsonResponse({'error': f'Missing required field: {field}'}, status=400)
         
         # Process the data
         site = data['site']
-        loc_name = data['lockame']
+        loc_name = data['locName']
         timezone = data['timeZone']
         channels_url = data['channels']
         data_intervals = data['data']

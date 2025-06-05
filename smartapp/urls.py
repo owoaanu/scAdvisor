@@ -16,14 +16,11 @@ urlpatterns =  [
     # path('drought', views.drought_map_view, name='drought_map_view'),
     # path('map', views.map_view, name='map_view'),
     path('drought', views.leaf_map_view, name='map_view'),
-
-    # path("ems-callback/", views.ems_callback, name="ems_callback"),
-
-    # path('ems-callback/', views.ems_callback),
-    path('ems-data-callback/', views.ems_data_callback, name='ems_callback'),
+    
+    path('ems-callback/', views.ems_data_callback, name='ems_callback'),
     path('dashboard/', views.dashboard, name='dashboard'),
     
-    path('ems-callback/', views.ems_image_callback, name='ems_image_callback'),
+    path('ems-image-callback/', views.ems_image_callback, name='ems_image_callback'),
      
     ]
 
