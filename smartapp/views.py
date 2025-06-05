@@ -66,19 +66,27 @@ def dashboard(request):
     localities = EMSLocality.objects.filter(site='NM-AIST').values_list('loc_name', flat=True).distinct()
     selected_locality = request.GET.get('locality')
     
+    channels = []
     images = {}
+    
     if selected_locality:
-        # Get images for selected locality
-        locality = EMSLocality.objects.get(loc_name=selected_locality)
-        images = {
-            '1_day': EMSImage.objects.filter(locality=locality, interval='1'),
-            '5_days': EMSImage.objects.filter(locality=locality, interval='5'),
-            '10_days': EMSImage.objects.filter(locality=locality, interval='10'),
-        }
+        try:
+            locality = EMSLocality.objects.get(loc_name=selected_locality)
+            channels = EMSChannel.objects.filter(locality=locality)
+            
+            # Get images grouped by interval
+            images = {
+                '1_day': EMSImage.objects.filter(locality=locality, interval='1').select_related('channel'),
+                '5_days': EMSImage.objects.filter(locality=locality, interval='5').select_related('channel'),
+                '10_days': EMSImage.objects.filter(locality=locality, interval='10').select_related('channel'),
+            }
+        except EMSLocality.DoesNotExist:
+            messages.warning(request, 'Selected locality not found')
     
     return render(request, 'dashboard.html', {
         'localities': localities,
         'selected_locality': selected_locality,
+        'channels': channels,
         'images': images
     })
 
@@ -105,33 +113,39 @@ def ems_data_callback(request):
         return JsonResponse({'error': 'Only POST allowed'}, status=405)
     
     try:
-        # Log raw request body for debugging
-        raw_body = request.body.decode('utf-8')
-        logger.info(f"Received callback: {raw_body}")
-        data = json.loads(raw_body)
+        # Ensure we have a request body
+        if not request.body:
+            return JsonResponse({'error': 'Empty request body'}, status=400)
+            
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
         
-        # Required fields from callback
+        # Required fields validation
+        required_fields = ['site', 'lockame', 'timeZone', 'channels', 'data']
+        for field in required_fields:
+            if field not in data:
+                return JsonResponse({'error': f'Missing required field: {field}'}, status=400)
+        
+        # Process the data
         site = data['site']
         loc_name = data['lockame']
         timezone = data['timeZone']
         channels_url = data['channels']
-        data_intervals = data['data']  # Dict of interval URLs
-        
-        # Optional field
+        data_intervals = data['data']
         last_verified = data.get('lastVerified')
         
-        # 1. Get channel information
-        channels_response = requests.get(f"{channels_url}&inclLocality=true")
-        channels_response.raise_for_status()
-        
+        # Get channel information
         try:
+            channels_response = requests.get(f"{channels_url}&inclLocality=true")
+            channels_response.raise_for_status()
             channels_data = channels_response.json()
-        except json.JSONDecodeError:
-            logger.error(f"Failed to parse channels JSON. Response: {channels_response.text}")
-            return JsonResponse({'error': 'Invalid channels JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': f'Failed to fetch channels: {str(e)}'}, status=400)
         
-        # 2. Create/update locality
-        locality, created = EMSLocality.objects.update_or_create(
+        # Create/update locality
+        locality, _ = EMSLocality.objects.update_or_create(
             site=site,
             loc_name=loc_name,
             defaults={
@@ -140,76 +154,95 @@ def ems_data_callback(request):
             }
         )
         
-        # 3. Process channels
-        for channel_id, channel_info in channels_data['channels'].items():
-            channel, _ = EMSChannel.objects.update_or_create(
+        # Process channels
+        for channel_id, channel_info in channels_data.get('channels', {}).items():
+            EMSChannel.objects.update_or_create(
                 locality=locality,
                 channel_id=int(channel_id),
                 defaults={
-                    'title': channel_info['title'],
-                    'default_title': channel_info.get('defaultTitle', channel_info['title']),
-                    'range_group': channel_info['rangeGroup']
+                    'title': channel_info.get('title', ''),
+                    'default_title': channel_info.get('defaultTitle', channel_info.get('title', '')),
+                    'range_group': channel_info.get('rangeGroup', '')
                 }
             )
         
         return JsonResponse({'status': 'success'})
     
-    except KeyError as e:
-        logger.error(f"Missing key in request: {str(e)}")
-        return JsonResponse({'error': f'Missing required field: {str(e)}'}, status=400)
-    except requests.RequestException as e:
-        logger.error(f"API request failed: {str(e)}")
-        return JsonResponse({'error': f'API request failed: {str(e)}'}, status=502)
     except Exception as e:
-        logger.exception("Processing error")
-        return JsonResponse({'error': f'Processing error>: {str(e)}'}, status=500)
-    
-    
-    
+        return JsonResponse({'error': f'Processing error: {str(e)}'}, status=500)
+
+
 @csrf_exempt
 def ems_image_callback(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST allowed'}, status=405)
     
     try:
-        data = json.loads(request.body)
+        # Ensure we have a request body
+        if not request.body:
+            return JsonResponse({'error': 'Empty request body'}, status=400)
+            
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
+        
+        # Required fields validation
+        required_fields = ['site', 'locName', 'cultures']
+        for field in required_fields:
+            if field not in data:
+                return JsonResponse({'error': f'Missing required field: {field}'}, status=400)
+        
         site = data['site']
         loc_name = data['locName']
         cultures = data['cultures']
         
-        locality = EMSLocality.objects.get(site=site, loc_name=loc_name)
+        try:
+            locality = EMSLocality.objects.get(site=site, loc_name=loc_name)
+        except EMSLocality.DoesNotExist:
+            return JsonResponse({'error': 'Locality not found'}, status=404)
         
         for culture, culData in cultures.items():
-            # Get channel metadata using the shortest interval
-            channels_url = culData['channels']['1']['url']
-            channels_response = requests.get(f"{channels_url}&inclLocality=true")
-            channels_data = channels_response.json()
+            # Get channel metadata
+            try:
+                channels_url = culData['channels']['1']['url']
+                channels_response = requests.get(f"{channels_url}&inclLocality=true")
+                channels_data = channels_response.json()
+            except Exception as e:
+                continue  # Skip this culture if we can't get channels
             
             # Process each interval
-            for interval in ['1', '5', '10']:  # Only process needed intervals
+            for interval in ['1', '5', '10']:
+                if interval not in culData.get('chart', {}):
+                    continue
+                
                 for channel_id, chart_info in culData['chart'][interval].items():
-                    # Download chart image
-                    chart_url = chart_info['url'] + "&width=600&height=400"
-                    img_response = requests.get(chart_url)
-                    img_response.raise_for_status()
-                    
-                    # Get channel object
-                    channel = EMSChannel.objects.get(
-                        locality=locality,
-                        channel_id=int(channel_id)
-                    )
-                    
-                    # Save image to model
-                    img_name = f"chart_{loc_name}_{channel_id}_{interval}_{culture}.png"
-                    ems_image = EMSImage(
-                        locality=locality,
-                        channel=channel,
-                        interval=interval,
-                        culture=culture
-                    )
-                    ems_image.image.save(img_name, ContentFile(img_response.content))
+                    try:
+                        # Download chart image
+                        chart_url = f"{chart_info['url']}&width=600&height=400"
+                        img_response = requests.get(chart_url)
+                        img_response.raise_for_status()
+                        
+                        # Get channel - THIS IS WHERE THE FIX IS
+                        channel = EMSChannel.objects.get(
+                            locality=locality,
+                            channel_id=int(channel_id))
+                        
+                        # Save image
+                        img_name = f"chart_{loc_name}_{channel_id}_{interval}_{culture}.png"
+                        ems_image, created = EMSImage.objects.update_or_create(
+                            locality=locality,
+                            channel=channel,
+                            interval=interval,
+                            culture=culture,
+                            defaults={'image': ContentFile(img_response.content, name=img_name)}
+                        )
+                    except EMSChannel.DoesNotExist:
+                        continue  # Skip if channel doesn't exist
+                    except Exception as e:
+                        continue  # Skip this image if there's an error
         
         return JsonResponse({'status': 'success'})
     
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': f'Processing error: {str(e)}'}, status=500)
