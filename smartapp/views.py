@@ -162,7 +162,7 @@ def ems_data_callback(request):
         return JsonResponse({'error': f'API request failed: {str(e)}'}, status=502)
     except Exception as e:
         logger.exception("Processing error")
-        return JsonResponse({'error': f'Processing error: {str(e)}'}, status=500)
+        return JsonResponse({'error': f'Processing error>: {str(e)}'}, status=500)
     
     
     
