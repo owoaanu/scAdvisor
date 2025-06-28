@@ -5,7 +5,10 @@ db.sqlite3
 /cenv/__pycache__/
 *.pyc
 __pycache__/
-__pycache__/
-__pycache__/
 *.pyc
+<<<<<<< HEAD
 __pycache__/
+=======
+# This is the log file
+*.log
+>>>>>>> 66dcf02ec113324a0a6685074749919f2cf78cfa
