@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.files.base import ContentFile
+from django.utils import timezone
 import json
 
 class EMSLocality(models.Model):
@@ -102,3 +103,56 @@ class EMSCallbackLog(models.Model):
     
     def __str__(self):
         return f"{self.callback_type} - {self.site}/{self.loc_name} at {self.created_at}"
+
+# New sensor data models
+class EMSSensorData(models.Model):
+    """Model to store processed sensor readings from EMS devices"""
+    
+    locality = models.ForeignKey(EMSLocality, on_delete=models.CASCADE, related_name='sensor_data')
+    timestamp = models.DateTimeField()
+    
+    # Environmental measurements
+    temperature = models.FloatField(null=True, blank=True, help_text="Temperature in Celsius")
+    humidity = models.FloatField(null=True, blank=True, help_text="Relative humidity in %")
+    pressure = models.FloatField(null=True, blank=True, help_text="Atmospheric pressure in hPa")
+    
+    # Wind measurements
+    wind_speed = models.FloatField(null=True, blank=True, help_text="Wind speed in m/s")
+    wind_direction = models.FloatField(null=True, blank=True, help_text="Wind direction in degrees")
+    
+    # Precipitation
+    rainfall = models.FloatField(null=True, blank=True, help_text="Rainfall in mm")
+    
+    # Additional measurements that might be available
+    solar_radiation = models.FloatField(null=True, blank=True, help_text="Solar radiation in W/m²")
+    soil_temperature = models.FloatField(null=True, blank=True, help_text="Soil temperature in Celsius")
+    soil_moisture = models.FloatField(null=True, blank=True, help_text="Soil moisture in %")
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        unique_together = ['locality', 'timestamp']
+        indexes = [
+            models.Index(fields=['locality', '-timestamp']),
+            models.Index(fields=['timestamp']),
+        ]
+    
+    def __str__(self):
+        return f"{self.locality.loc_name} - {self.timestamp}"
+    
+    @property
+    def temperature_fahrenheit(self):
+        """Convert temperature to Fahrenheit"""
+        if self.temperature is not None:
+            return (self.temperature * 9/5) + 32
+        return None
+    
+    @property
+    def wind_speed_kmh(self):
+        """Convert wind speed to km/h"""
+        if self.wind_speed is not None:
+            return self.wind_speed * 3.6
+        return None

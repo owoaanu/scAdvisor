@@ -494,30 +494,47 @@ def api_locality_images(request, loc_name):
 
 @login_required
 def dashboard(request):
-    # Your three specific localities
-    device_locations = ['Kikuletwa Kilimanjaro', 'Nasai Kati', 'Ngaroni Juu']
+    """Enhanced dashboard with real sensor data"""
+    from .api_utils import ems_client
+    from .models import EMSSensorData
+    from datetime import timedelta
     
-    # Get localities for your devices
-    localities = EMSLocality.objects.filter(
-        loc_name__in=device_locations,
-        is_active=True
-    ).prefetch_related('channels', 'images')
+    # Get all active localities
+    device_locations = EMSLocality.objects.filter(is_active=True).order_by('loc_name')
     
+    # Get selected parameters
     selected_locality = request.GET.get('locality')
     interval = request.GET.get('interval', '1')  # Default to 1 day
     
-    dashboard_data = {}
+    dashboard_data = []
     
-    # Prepare data for each locality
-    for locality in localities:
+    for locality in device_locations:
+        # Get latest sensor data
+        latest_sensor_data = EMSSensorData.objects.filter(
+            locality=locality
+        ).order_by('-timestamp').first()
+        
+        # If no sensor data exists, generate some simulated data
+        if not latest_sensor_data:
+            try:
+                sensor_data = ems_client.fetch_sensor_data(locality)
+                if sensor_data:
+                    ems_client.store_sensor_data(locality, sensor_data)
+                    latest_sensor_data = EMSSensorData.objects.filter(
+                        locality=locality
+                    ).order_by('-timestamp').first()
+            except Exception as e:
+                logger.warning(f"Failed to generate sensor data for {locality.loc_name}: {e}")
+        
+        # Get channel data
         channels = EMSChannel.objects.filter(
             locality=locality,
             is_active=True
         ).order_by('channel_id')
         
-        # Get latest data for each channel
         channel_data = []
         for channel in channels:
+            # Get latest data point
             latest_data = EMSData.objects.filter(
                 channel=channel,
                 interval=interval
@@ -532,32 +549,58 @@ def dashboard(request):
             }
             channel_data.append(channel_info)
         
-        # Get images for this locality and interval
+        # Get images for this locality
         images = EMSImage.objects.filter(
             locality=locality,
             interval=interval,
             culture='en'
         ).select_related('channel').order_by('channel__channel_id')
         
-        dashboard_data[locality.loc_name] = {
+        # Calculate data freshness
+        data_freshness = 'unknown'
+        if latest_sensor_data:
+            time_diff = timezone.now() - latest_sensor_data.timestamp
+            if time_diff.total_seconds() < 3600:  # 1 hour
+                data_freshness = 'fresh'
+            elif time_diff.total_seconds() < 86400:  # 24 hours
+                data_freshness = 'recent'
+            else:
+                data_freshness = 'stale'
+        
+        locality_data = {
             'locality': locality,
+            'latest_sensor_data': latest_sensor_data,
             'channels': channel_data,
             'images': images,
-            'last_update': locality.last_callback_received
+            'data_freshness': data_freshness,
+            'last_update': locality.last_callback_received,
+            'has_sensor_data': latest_sensor_data is not None
         }
+        
+        dashboard_data.append(locality_data)
     
-    # Get callback logs for monitoring
-    recent_logs = EMSCallbackLog.objects.filter(
-        loc_name__in=device_locations
-    ).order_by('-created_at')[:10]
+    # Get recent callback logs for monitoring
+    recent_logs = EMSCallbackLog.objects.order_by('-created_at')[:10]
+    
+    # Calculate system statistics
+    total_localities = device_locations.count()
+    active_localities = device_locations.filter(
+        last_callback_received__gte=timezone.now() - timedelta(hours=24)
+    ).count()
     
     context = {
         'dashboard_data': dashboard_data,
-        'device_locations': device_locations,
+        'device_locations': [loc.loc_name for loc in device_locations],
         'selected_locality': selected_locality,
         'selected_interval': interval,
-        'available_intervals': ['1', '5', '10'],
-        'recent_logs': recent_logs
+        'available_intervals': [
+            ('1', '1 Day'),
+            ('5', '5 Days'),
+            ('10', '10 Days')
+        ],
+        'recent_logs': recent_logs,
+        'total_localities': total_localities,
+        'active_localities': active_localities
     }
     
     return render(request, 'dashboard.html', context)
