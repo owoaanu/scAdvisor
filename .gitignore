@@ -6,5 +6,9 @@ db.sqlite3
 *.pyc
 __pycache__/
 *.pyc
+<<<<<<< HEAD
+__pycache__/
+=======
 # This is the log file
 *.log
+>>>>>>> 66dcf02ec113324a0a6685074749919f2cf78cfa
